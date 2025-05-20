@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Filters\Filter;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use App\Filament\Resources\NominatifKreditResource\Pages\DetailKredit;
+use Filament\Tables\Actions\Action;
 
 class NominatifKreditResource extends Resource
 {
@@ -74,11 +76,6 @@ class NominatifKreditResource extends Resource
                     ->label("Bakidebet")
                     ->money("IDR"),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                // ...
-            ])
-
             ->filters([
                 Filter::make("ao_filter")
                     ->label("Filter Berdasarkan AO")
@@ -183,7 +180,10 @@ class NominatifKreditResource extends Resource
                     ),
             ])
             ->actions([
-                //Tables\Actions\EditAction::make(),
+                Action::make('lihat_detail')
+                    ->label('Detail')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (NominatifKredit $record): string => route('filament.admin.resources.nominatif-kredits.detail', ['record' => sha1($record->id)]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -206,6 +206,7 @@ class NominatifKreditResource extends Resource
             //'create' => Pages\CreateNominatifKredit::route('/create'),
             //'edit' => Pages\EditNominatifKredit::route('/{record}/edit'),
             //'view' => ViewNominatifKredit::route('/{record}'),
+            'detail' => DetailKredit::route('/{record}/detail'),
         ];
     }
     public static function getEloquentQuery(): Builder
