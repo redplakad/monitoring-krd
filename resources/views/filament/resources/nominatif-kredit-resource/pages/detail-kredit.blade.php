@@ -8,31 +8,32 @@
                         $tglLahir = \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_LAHIR']);
                         $umur = $tglLahir->diff(now());
                     @endphp
-<div class="max-w-sm p-4 flex items-center gap-4 bg-white rounded-xl shadow-sm">
-    <div class="relative w-16 h-16 shrink-0">
-        <img src="{{ asset('images/avatar01.png') }}"
-             alt="Avatar"
-             class="w-16 h-16 rounded-full object-cover border border-gray-300" />
-        <a href="#"
-           class="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M17.414 2.586a2 2 0 010 2.828l-1.121 1.121-2.828-2.828 1.121-1.121a2 2 0 012.828 0zM2 13.586V17h3.414l9.899-9.899-2.828-2.828L2 13.586z"/>
-            </svg>
-        </a>
-    </div>
+                    <div class="max-w-sm p-4 flex items-center gap-4 bg-white rounded-xl shadow-sm">
+                        <div class="relative w-16 h-16 shrink-0">
+                            <img src="{{ asset('images/avatar01.png') }}" alt="Avatar"
+                                class="w-16 h-16 rounded-full object-cover border border-gray-300" />
+                            <a href="#"
+                                class="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow hover:bg-gray-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        d="M17.414 2.586a2 2 0 010 2.828l-1.121 1.121-2.828-2.828 1.121-1.121a2 2 0 012.828 0zM2 13.586V17h3.414l9.899-9.899-2.828-2.828L2 13.586z" />
+                                </svg>
+                            </a>
+                        </div>
 
-<div class="flex flex-col">
-    <span class="text-sm font-semibold text-gray-800">{{ $record['NAMA_NASABAH'] }}</span>
-    
-    <span class="text-xs text-gray-500 mt-1 flex items-center">
-        <x-heroicon-s-heart class="w-4 h-4 mr-3 shrink-0 text-danger" /> 
-        {{ $umur->y }} Thn {{ $umur->m }} Bln  &nbsp;
-         <x-heroicon-s-calendar class="w-4 h-4 ml-3 shrink-0" />
-        {{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_LAHIR'])->format('d-m-Y') }}
-    </span>
-</div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-semibold text-gray-800">{{ $record['NAMA_NASABAH'] }}</span>
 
-</div>
+                            <span class="text-xs text-gray-500 mt-1 flex items-center">
+                                <x-heroicon-s-heart class="w-4 h-4 mr-3 shrink-0 text-danger" />
+                                {{ $umur->y }} Thn {{ $umur->m }} Bln &nbsp;
+                                <x-heroicon-s-calendar class="w-4 h-4 ml-3 shrink-0" />
+                                {{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_LAHIR'])->format('d-m-Y') }}
+                            </span>
+                        </div>
+
+                    </div>
 
                     <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
                         <div>
@@ -190,7 +191,7 @@
                     </div>
                 </div>
 
-                
+
                 @livewire('monitoring-kredit-crud', ['recordId' => $record->NOMOR_REKENING])
             </div>
         </div>

@@ -9,6 +9,67 @@
         </div>
 
         <div class="overflow-x-auto">
+            @if ($successMessage)
+                <div 
+                    x-data="{ show: true }" 
+                    x-show="show" 
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform translate-y-2"
+                    x-transition:enter-end="opacity-100 transform translate-y-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 transform translate-y-0"
+                    x-transition:leave-end="opacity-0 transform translate-y-2"
+                    class="filament-notification filament-notification-success flex items-center justify-between gap-2 rounded-lg border border-success-300 bg-success-50 p-3 mb-6 text-sm text-success-700 dark:border-success-700 dark:bg-success-950 dark:text-success-300"
+                    style="color:#2e7d32 !important; background-color:#F0FDF4 !important; margin-bottom:10px; border:0;"
+                >
+                    <span class="font-medium flex items-center gap-2">
+                        <div class="w-5 h-5 flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor" 
+                                aria-hidden="true" 
+                                class="w-full h-full">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div> 
+                        {{ $successMessage }}
+                    </span>
+                    <button @click="show = false" class="text-xl leading-none">&times;</button>
+                </div>
+            @endif
+
+            @if ($deleteSuccessMessage)
+    <div 
+        x-data="{ show: true }" 
+        x-show="show" 
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform translate-y-2"
+        x-transition:enter-end="opacity-100 transform translate-y-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform translate-y-0"
+        x-transition:leave-end="opacity-0 transform translate-y-2"
+        class="filament-notification filament-notification-danger flex items-center justify-between gap-2 rounded-lg border border-danger-300 bg-danger-50 p-3 mb-6 text-sm text-danger-700 dark:border-danger-700 dark:bg-danger-950 dark:text-danger-300"
+        style="color:#b91c1c !important; background-color:#fef2f2 !important; margin-bottom:10px; border:0;"
+    >
+    <span class="font-medium flex items-center gap-2">
+        <div class="w-5 h-5 flex-shrink-0">
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 20 20" 
+                fill="currentColor" 
+                aria-hidden="true" 
+                data-slot="icon" 
+                class="on bfl">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd"></path>
+            </svg>
+        </div> 
+        {{ $deleteSuccessMessage }}
+    </span>
+    <button @click="show = false" class="text-xl leading-none">&times;</button>
+</div>
+
+            @endif
+
             <table class="w-full divide-y divide-gray-200 text-xs">
                 <thead class="bg-gray-50">
                     <tr>
@@ -28,23 +89,32 @@
                             <td class="px-4 py-2 text-xs text-gray-700">{{ $item->HASIL_TINDAKAN }}</td>
                             <td class="px-4 py-2 text-xs text-right space-x-2">
                             <div class="flex space-x-4 text-sm mt-2">
-                                <a wire:click="showEditModal({{ $item->id }})"
-                                class="text-blue-600 hover:underline cursor-pointer inline-flex items-center"
-                                title="Edit">
-                                    <x-heroicon-o-pencil-square class="w-4 h-4 mr-1" />
-                                </a>
+                                <x-filament::link
+                                    wire:click="showEditModal({{ $item->id }})"
+                                    icon="heroicon-o-pencil-square"
+                                    class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
+                                    title="Edit"
+                                    size="xs"
+                                    color="success"
+                                />
 
-                                <a wire:click="$set('confirmingDeleteId', {{ $item->id }})"
-                                class="text-red-600 hover:underline cursor-pointer inline-flex items-center"
-                                title="Hapus">
-                                    <x-heroicon-s-trash class="w-4 h-4 mr-1" />
-                                </a>
+                                <x-filament::link
+                                    wire:click="$set('confirmingDeleteId', {{ $item->id }})"
+                                    icon="heroicon-s-trash"
+                                    class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
+                                    title="Hapus"
+                                    size="xs"
+                                    color="success"
+                                />
 
-                                <a wire:click="showViewModal({{ $item->id }})"
-                                class="text-gray-700 hover:underline cursor-pointer inline-flex items-center"
-                                title="Lihat Detail">
-                                    <x-heroicon-s-eye class="w-4 h-4 mr-1" />
-                                </a>
+                                <x-filament::link
+                                    wire:click="showViewModal({{ $item->id }})"
+                                    icon="heroicon-s-eye"
+                                    class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
+                                    title="Lihat Detail"
+                                    size="xs"
+                                    color="success"
+                                />
                             </div>
                             </td>
                         </tr>
@@ -150,36 +220,58 @@
      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-6 sm:px-0"
      style="display: none;">
     <div @click.away="open = false"
-         class="w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden">
+         class="w-full max-w-2xl bg-white rounded-xl shadow-xl overflow-hidden">
 
         <div class="px-6 py-4 border-b">
             <h2 class="text-lg font-semibold text-gray-800">Detail Monitoring</h2>
         </div>
 
-        <div class="px-6 py-4 space-y-3 text-sm text-gray-700">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><span class="font-semibold">CIF:</span> {{ $viewData['CIF'] ?? '-' }}</div>
-                <div><span class="font-semibold">Nama Nasabah:</span> {{ $viewData['NAMA_NASABAH'] ?? '-' }}</div>
-                <div><span class="font-semibold">Tindakan:</span> {{ $viewData['TINDAKAN'] ?? '-' }}</div>
-                <div><span class="font-semibold">Pembayaran:</span> Rp {{ number_format($viewData['PEMBAYARAN'] ?? 0) }}</div>
-                <div class="sm:col-span-2">
-                    <span class="font-semibold">Hasil:</span> {{ $viewData['HASIL_TINDAKAN'] ?? '-' }}
-                </div>
-            </div>
-
-            @if(isset($viewData['bukti_tindakan']) && count($viewData['bukti_tindakan']) > 0)
-                <div>
-                    <div class="font-semibold mb-1">Bukti Tindakan:</div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        @foreach ($viewData['bukti_tindakan'] as $bukti)
-                            <img src="data:image/jpeg;base64,{{ $bukti['photo'] }}"
-                                 alt="Bukti"
-                                 class="rounded-md border shadow-sm object-cover aspect-square">
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+<div class="space-y-4">
+    <!-- Informasi Utama -->
+    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+        <div>
+            <p class="text-xs text-gray-500">CIF</p>
+            <p class="font-medium text-sm text-gray-700">{{ $viewData['CIF'] ?? '-' }}</p>
         </div>
+        <div>
+            <p class="text-xs text-gray-500">Nama Nasabah</p>
+            <p class="font-medium text-sm text-gray-700">{{ $viewData['NAMA_NASABAH'] ?? '-' }}</p>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+        <div>
+            <p class="text-xs text-gray-500">Tindakan</p>
+            <p class="font-medium text-sm text-gray-700">{{ $viewData['TINDAKAN'] ?? '-' }}</p>
+        </div>
+        <div>
+            <p class="text-xs text-gray-500">Pembayaran</p>
+            <p class="font-medium text-sm text-gray-700">
+                Rp {{ number_format($viewData['PEMBAYARAN'] ?? 0, 0, ',', '.') }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Hasil Tindakan -->
+    <div class="bg-gray-50 p-4 rounded-xl">
+        <p class="text-xs text-gray-500 mb-1">Hasil</p>
+        <p class="font-medium text-sm text-gray-700">{{ $viewData['HASIL_TINDAKAN'] ?? '-' }}</p>
+    </div>
+
+    <!-- Bukti Tindakan -->
+    @if(isset($viewData['bukti_tindakan']) && count($viewData['bukti_tindakan']) > 0)
+        <div>
+            <p class="text-xs text-gray-500 mb-2">Bukti Tindakan</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                @foreach ($viewData['bukti_tindakan'] as $bukti)
+                    <img src="data:image/jpeg;base64,{{ $bukti['photo'] }}"
+                         alt="Bukti"
+                         class="rounded-md border shadow-sm object-cover aspect-square">
+                @endforeach
+            </div>
+        </div>
+    @endif
+</div>
 
         <div class="px-6 py-3 border-t flex justify-end">
             <x-filament::button icon="heroicon-m-sparkles" color="success" @click="open = false"

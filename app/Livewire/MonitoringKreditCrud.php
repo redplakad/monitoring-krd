@@ -24,7 +24,8 @@ class MonitoringKreditCrud extends Component
     public $confirmingDeleteId = null;
     public $viewing = false;
     public $viewData = [];
-
+    public $successMessage = null;
+    public $deleteSuccessMessage = null;
     protected $paginationTheme = 'tailwind'; // sesuaikan dengan styling
 
     public function mount($recordId)
@@ -96,6 +97,7 @@ class MonitoringKreditCrud extends Component
                 'user_id' => Auth::id(),
             ]
         );
+        
 
         foreach ($this->photos as $photo) {
             $imageData = base64_encode(file_get_contents($photo->getRealPath()));
@@ -108,12 +110,14 @@ class MonitoringKreditCrud extends Component
 
         $this->modalFormVisible = false;
         $this->resetPage();
+        //$this->successMessage = 'Data penagihan berhasil disimpan.';
     }
 
     public function delete($id)
     {
         MonitoringKredit::find($id)->delete();
         $this->resetPage();
+        $this->deleteSuccessMessage = 'Data penagihan berhasil dihapus.';
     }
 
     public function confirmDelete()
@@ -121,6 +125,7 @@ class MonitoringKreditCrud extends Component
         MonitoringKredit::find($this->confirmingDeleteId)?->delete();
         $this->confirmingDeleteId = null;
         $this->resetPage();
+        $this->deleteSuccessMessage = 'Data penagihan berhasil dihapus.';
     }
 
     public function render()
@@ -128,7 +133,7 @@ class MonitoringKreditCrud extends Component
         $monitorings = MonitoringKredit::where('NOMOR_REKENING', $this->recordId)
             ->with('user', 'buktiTindakan')
             ->orderBy('created_at', 'desc')
-            ->paginate(3);
+            ->paginate(30);
 
         return view('livewire.monitoring-kredit-crud', [
             'monitorings' => $monitorings,

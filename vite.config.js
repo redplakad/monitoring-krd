@@ -18,6 +18,7 @@ export default defineConfig({
                 'app/Livewire/**',
                 'app/View/Components/**',
                 'routes/**',
+                'app/Livewire/**',
             ],
         }),
         tailwindcss(),
