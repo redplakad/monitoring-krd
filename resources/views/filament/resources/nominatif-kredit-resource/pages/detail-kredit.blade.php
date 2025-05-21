@@ -25,7 +25,7 @@
     <span class="text-sm font-semibold text-gray-800">{{ $record['NAMA_NASABAH'] }}</span>
     
     <span class="text-xs text-gray-500 mt-1 flex items-center">
-        <x-heroicon-s-heart class="w-4 h-4 mr-3 shrink-0" /> 
+        <x-heroicon-s-heart class="w-4 h-4 mr-3 shrink-0 text-danger" /> 
         {{ $umur->y }} Thn {{ $umur->m }} Bln  &nbsp;
          <x-heroicon-s-calendar class="w-4 h-4 ml-3 shrink-0" />
         {{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_LAHIR'])->format('d-m-Y') }}
