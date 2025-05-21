@@ -145,4 +145,9 @@ class NominatifKredit extends Model
         'CADANGAN_PPAP' => 'decimal:2',
         'NILAI_LEGALITAS' => 'decimal:2',
     ];
+
+    public function monitoring()
+    {
+        return $this->hasMany(MonitoringKredit::class, 'NOMOR_REKENING', 'NOMOR_REKENING');
+    }
 }

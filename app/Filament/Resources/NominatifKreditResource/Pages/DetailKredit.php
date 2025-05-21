@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Filament\Resources\NominatifKreditResource\Pages;
-use Illuminate\Contracts\Encryption\DecryptException;
 
 use Filament\Resources\Pages\Page;
 use App\Models\NominatifKredit;
 use App\Filament\Resources\NominatifKreditResource;
 use App\Models\MonitoringKredit;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class DetailKredit extends Page
 {
@@ -15,34 +15,44 @@ class DetailKredit extends Page
     protected static string $view = 'filament.resources.nominatif-kredit-resource.pages.detail-kredit';
 
     public $record;
+    public $count_kunjungan;
+    public $count_panggilan;
 
-public function mount($record): void
-{
-    try {
-        $id = $record;
-    } catch (DecryptException $e) {
-        abort(403, 'Payload tidak valid.');
+    public function mount($record): void
+    {
+        try {
+            $id = $record;
+        } catch (DecryptException $e) {
+            abort(403, 'Payload tidak valid.');
+        }
+
+        // Ambil record utama
+        $recordModel = NominatifKredit::whereRaw('sha1(id) = ?', [$id])->first();
+
+        if (!$recordModel) {
+            abort(404, 'Data CIF tidak ditemukan.');
+        }
+
+        $noCif = $recordModel->NO_CIF;
+        $noLoan = $recordModel->NOMOR_REKENING;
+
+        // Hitung kunjungan & panggilan
+        $this->count_kunjungan = MonitoringKredit::where('TINDAKAN', 'Kunjungan')
+            ->where('NOMOR_REKENING', $noLoan)
+            ->count();
+
+        $this->count_panggilan = MonitoringKredit::where('NOMOR_REKENING', $noLoan)
+            ->whereIn('TINDAKAN', ['Whatsapp', 'Telepon'])
+            ->count();
+
+        // Ambil data record terakhir berdasarkan DATADATE
+        $latestdate = NominatifKredit::where('NO_CIF', $noCif)->max('DATADATE');
+
+        $this->record = NominatifKredit::where('NO_CIF', $noCif)
+            ->where('DATADATE', $latestdate)
+            ->firstOrFail();
+
+        // Tambahkan data monitoring
+        $this->record->monitoring = MonitoringKredit::where('NOMOR_REKENING', $noLoan)->get();
     }
-
-    // Get NO_CIF from record with sha1(id) = $id
-    $noCif = NominatifKredit::whereRaw('sha1(id) = ?', [$id])->value('NO_CIF');
-    $noLoan = NominatifKredit::whereRaw('sha1(id) = ?', [$id])->value('NOMOR_REKENING');
-
-    if (!$noCif && !$noLoan) {
-        abort(404, 'Data CIF tidak ditemukan.');
-    }
-
-    // Get latest DATADATE for that CIF
-    $latestdate = NominatifKredit::where('NO_CIF', $noCif)->max('DATADATE');
-
-    // Get the full record
-    $this->record = NominatifKredit::where('NO_CIF', $noCif)
-        ->where('DATADATE', $latestdate)
-        ->firstOrFail();
-
-    // Tambahkan data monitoring
-    $this->record->monitoring = MonitoringKredit::whereRaw('NOMOR_REKENING = ?', [$noLoan])->get();
-}
-
-
 }

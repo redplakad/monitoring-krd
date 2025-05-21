@@ -29,7 +29,7 @@ return new class extends Migration
                   ->onDelete('set null');
 
             // Kolom photo (bisa simpan path atau nama file)
-            $table->string('photo'); // bisa gunakan path, url, atau nama file
+            $table->mediumText('photo'); // bisa gunakan path, url, atau nama file
 
             // Timestamps
             $table->timestamps();
