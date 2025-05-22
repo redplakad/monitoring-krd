@@ -21,11 +21,14 @@ class MonitoringKreditCrud extends Component
     public $monitoring_id;
     public $tindakan, $pembayaran, $hasil_tindakan;
     public $photos = [];
+    public $oldPhotos = [];
+    public $photoToDelete = null;
     public $confirmingDeleteId = null;
     public $viewing = false;
     public $viewData = [];
     public $successMessage = null;
     public $deleteSuccessMessage = null;
+    public $editSuccessMessage = null;
     protected $paginationTheme = 'tailwind'; // sesuaikan dengan styling
 
     public function mount($recordId)
@@ -47,6 +50,7 @@ class MonitoringKreditCrud extends Component
     public function showCreateModal()
     {
         $this->resetForm();
+         $this->reset(['tindakan', 'pembayaran', 'hasil_tindakan', 'photos', 'oldPhotos', 'monitoring_id']);
         $this->modalFormVisible = true;
     }
 
@@ -58,6 +62,7 @@ class MonitoringKreditCrud extends Component
         $this->tindakan = $monitoring->TINDAKAN;
         $this->pembayaran = $monitoring->PEMBAYARAN;
         $this->hasil_tindakan = $monitoring->HASIL_TINDAKAN;
+        $this->oldPhotos = MonitoringBuktiTindakan::where('monitoring_id', $monitoring->id)->get();
         $this->modalFormVisible = true;
     }
 
@@ -76,6 +81,20 @@ class MonitoringKreditCrud extends Component
             'photos.*' => 'image|max:1024',
         ]);
     }
+    public function confirmDeletePhoto($photoId)
+    {
+        $this->photoToDelete = $photoId;
+        $this->dispatch('show-delete-photo-confirmation');
+    }
+    public function deletePhoto()
+    {
+        if ($this->photoToDelete) {
+            MonitoringBuktiTindakan::find($this->photoToDelete)?->delete();
+            // Refresh foto lama
+            $this->oldPhotos = MonitoringBuktiTindakan::where('monitoring_id', $this->monitoring_id)->get();
+            $this->photoToDelete = null;
+        }
+    }
 
     public function save()
     {
@@ -84,6 +103,8 @@ class MonitoringKreditCrud extends Component
             'pembayaran' => 'nullable|numeric',
             'hasil_tindakan' => 'required|string|max:255',
         ]);
+
+        $isUpdate = !is_null($this->monitoring_id);
 
         $monitoring = MonitoringKredit::updateOrCreate(
             ['id' => $this->monitoring_id],
@@ -97,7 +118,6 @@ class MonitoringKreditCrud extends Component
                 'user_id' => Auth::id(),
             ]
         );
-        
 
         foreach ($this->photos as $photo) {
             $imageData = base64_encode(file_get_contents($photo->getRealPath()));
@@ -110,7 +130,12 @@ class MonitoringKreditCrud extends Component
 
         $this->modalFormVisible = false;
         $this->resetPage();
-        //$this->successMessage = 'Data penagihan berhasil disimpan.';
+
+        if ($isUpdate) {
+            $this->editSuccessMessage = 'Data berhasil diubah!';
+        } else {
+            $this->successMessage = 'Data penagihan berhasil disimpan.';
+        }
     }
 
     public function delete($id)
