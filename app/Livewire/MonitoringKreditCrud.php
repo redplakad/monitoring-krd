@@ -9,6 +9,7 @@ use App\Models\MonitoringKredit;
 use App\Models\MonitoringBuktiTindakan;
 use App\Models\NominatifKredit;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MonitoringKreditCrud extends Component
 {
@@ -89,7 +90,14 @@ class MonitoringKreditCrud extends Component
     public function deletePhoto()
     {
         if ($this->photoToDelete) {
-            MonitoringBuktiTindakan::find($this->photoToDelete)?->delete();
+            $photo = MonitoringBuktiTindakan::find($this->photoToDelete);
+            if ($photo) {
+                // Hapus file fisik dari storage
+                if ($photo->photo && Storage::disk('public')->exists($photo->photo)) {
+                    Storage::disk('public')->delete($photo->photo);
+                }
+                $photo->delete();
+            }
             // Refresh foto lama
             $this->oldPhotos = MonitoringBuktiTindakan::where('monitoring_id', $this->monitoring_id)->get();
             $this->photoToDelete = null;
@@ -102,6 +110,7 @@ class MonitoringKreditCrud extends Component
             'tindakan' => 'required|string|max:255',
             'pembayaran' => 'nullable|numeric',
             'hasil_tindakan' => 'required|string|max:255',
+            'photos.*' => 'image|max:1024', // validasi upload
         ]);
 
         $isUpdate = !is_null($this->monitoring_id);
@@ -119,12 +128,13 @@ class MonitoringKreditCrud extends Component
             ]
         );
 
+        // Simpan file gambar ke storage dan path ke database
         foreach ($this->photos as $photo) {
-            $imageData = base64_encode(file_get_contents($photo->getRealPath()));
+            $path = $photo->store('bukti_tindakan', 'public');
             MonitoringBuktiTindakan::create([
                 'monitoring_id' => $monitoring->id,
                 'user_id' => Auth::id(),
-                'photo' => $imageData,
+                'photo' => $path, // hanya path, bukan base64
             ]);
         }
 
@@ -140,14 +150,36 @@ class MonitoringKreditCrud extends Component
 
     public function delete($id)
     {
-        MonitoringKredit::find($id)->delete();
+        $monitoring = MonitoringKredit::find($id);
+        if ($monitoring) {
+            // Hapus semua bukti tindakan terkait (file & database)
+            $buktis = MonitoringBuktiTindakan::where('monitoring_id', $monitoring->id)->get();
+            foreach ($buktis as $bukti) {
+                if ($bukti->photo && \Storage::disk('public')->exists($bukti->photo)) {
+                    \Storage::disk('public')->delete($bukti->photo);
+                }
+                $bukti->delete();
+            }
+            $monitoring->delete();
+        }
         $this->resetPage();
         $this->deleteSuccessMessage = 'Data penagihan berhasil dihapus.';
     }
 
     public function confirmDelete()
     {
-        MonitoringKredit::find($this->confirmingDeleteId)?->delete();
+        $monitoring = MonitoringKredit::find($this->confirmingDeleteId);
+        if ($monitoring) {
+            // Hapus semua bukti tindakan terkait (file & database)
+            $buktis = MonitoringBuktiTindakan::where('monitoring_id', $monitoring->id)->get();
+            foreach ($buktis as $bukti) {
+                if ($bukti->photo && \Storage::disk('public')->exists($bukti->photo)) {
+                    \Storage::disk('public')->delete($bukti->photo);
+                }
+                $bukti->delete();
+            }
+            $monitoring->delete();
+        }
         $this->confirmingDeleteId = null;
         $this->resetPage();
         $this->deleteSuccessMessage = 'Data penagihan berhasil dihapus.';

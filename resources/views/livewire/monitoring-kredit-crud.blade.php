@@ -102,25 +102,15 @@
                             <td class="px-4 py-2 text-xs text-gray-700">{{ $item->HASIL_TINDAKAN }}</td>
                             <td class="px-4 py-2 text-xs text-right space-x-2">
                                 <div class="flex space-x-4 text-sm mt-2">
-                                <x-filament::link
-                                    wire:click="showEditModal({{ $item->id }})"
-                                    icon="heroicon-o-pencil-square"
-                                    class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
-                                    title="Edit"
-                                    size="xs"
-                                    color="success"
-                                    :disabled="auth()->id() !== $item->user_id"
-                                />
+                                    <x-filament::link wire:click="showEditModal({{ $item->id }})"
+                                        icon="heroicon-o-pencil-square"
+                                        class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
+                                        title="Edit" size="xs" color="success" :disabled="auth()->id() !== $item->user_id" />
 
-                                <x-filament::link
-                                    wire:click="$set('confirmingDeleteId', {{ $item->id }})"
-                                    icon="heroicon-s-trash"
-                                    class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
-                                    title="Hapus"
-                                    size="xs"
-                                    color="success"
-                                    :disabled="auth()->id() !== $item->user_id"
-                                />
+                                    <x-filament::link wire:click="$set('confirmingDeleteId', {{ $item->id }})"
+                                        icon="heroicon-s-trash"
+                                        class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
+                                        title="Hapus" size="xs" color="success" :disabled="auth()->id() !== $item->user_id" />
 
                                     <x-filament::link wire:click="showViewModal({{ $item->id }})"
                                         icon="heroicon-s-eye"
@@ -213,7 +203,7 @@
                                     style="max-height: 300px;">
                                     @foreach ($oldPhotos as $oldPhoto)
                                         <div class="relative group">
-                                            <img src="data:image/jpeg;base64,{{ $oldPhoto->photo }}"
+                                            <img src="{{ asset('storage/' . $oldPhoto->photo) }}"
                                                 class="rounded border object-cover w-full aspect-square" />
                                             <button type="button"
                                                 class="absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 text-red-600 hover:bg-red-600 hover:text-white transition group-hover:scale-110"
@@ -246,6 +236,7 @@
                                     <span class="text-xs text-gray-600">Memproses foto, mohon tunggu...</span>
                                 </div>
 
+                                {{-- Preview foto baru yang diupload --}}
                                 @if ($photos)
                                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 overflow-y-auto"
                                         style="max-height: 300px;">
@@ -313,42 +304,37 @@
                         <p class="text-xs text-gray-500 mb-1">Hasil</p>
                         <p class="font-medium text-sm text-gray-700">{{ $viewData['HASIL_TINDAKAN'] ?? '-' }}</p>
                     </div>
-<!-- Bukti Tindakan -->
-@if (isset($viewData['bukti_tindakan']) && count($viewData['bukti_tindakan']) > 0)
-    <div x-data="{ showImg: false, imgSrc: '' }">
-        <p class="text-xs text-gray-500 mb-2">Bukti Tindakan</p>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto" style="max-height: 320px;">
-            @foreach ($viewData['bukti_tindakan'] as $bukti)
-                <img 
-                    src="data:image/jpeg;base64,{{ $bukti['photo'] }}" 
-                    alt="Bukti"
-                    class="rounded-md border shadow-sm object-cover aspect-square cursor-pointer transition hover:scale-105"
-                    @click="showImg = true; imgSrc = 'data:image/jpeg;base64,{{ $bukti['photo'] }}'"
-                >
-            @endforeach
-        </div>
-        <!-- Modal Fullscreen Preview -->
-        <div 
-            x-show="showImg" 
-            x-transition 
-            class="fixed inset-0 z-50 flex items-center justify-center"
-            style="display: none;background-color: rgba(0,0,0,0.5);"
-        >
-            <!-- Overlay -->
-            <div class="absolute inset-0 bg-black bg-opacity-80" @click="showImg = false"></div>
-            <!-- Scrollable Image Container -->
-            <div class="relative z-10 max-h-[95vh] max-w-[95vw] overflow-auto flex items-center justify-center">
-                <img :src="imgSrc" class="rounded shadow-lg border-4 border-white max-h-[90vh] max-w-[90vw]" />
-                <button 
-                    @click="showImg = false"
-                    class="absolute top-4 right-4 text-white text-3xl font-bold z-20 bg-black bg-opacity-40 rounded-full px-3 py-1 hover:bg-opacity-70"
-                    aria-label="Tutup"
-                    style="background-color: rgba(0, 0, 0, 0.7);"
-                >&times;</button>
-            </div>
-        </div>
-    </div>
-@endif
+                    <!-- Bukti Tindakan -->
+                    @if (isset($viewData['bukti_tindakan']) && count($viewData['bukti_tindakan']) > 0)
+                        <div x-data="{ showImg: false, imgSrc: '' }">
+                            <p class="text-xs text-gray-500 mb-2">Bukti Tindakan</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto"
+                                style="max-height: 320px;">
+                                @foreach ($viewData['bukti_tindakan'] as $bukti)
+                                    <img src="{{ asset('storage/' . $bukti['photo']) }}" alt="Bukti"
+                                        class="rounded-md border shadow-sm object-cover aspect-square cursor-pointer transition hover:scale-105"
+                                        @click="showImg = true; imgSrc = '{{ asset('storage/' . $bukti['photo']) }}'">
+                                @endforeach
+                            </div>
+                            <!-- Modal Fullscreen Preview -->
+                            <div x-show="showImg" x-transition
+                                class="fixed inset-0 z-50 flex items-center justify-center"
+                                style="display: none;background-color: rgba(0,0,0,0.5);">
+                                <!-- Overlay -->
+                                <div class="absolute inset-0 bg-black bg-opacity-80" @click="showImg = false"></div>
+                                <!-- Scrollable Image Container -->
+                                <div
+                                    class="relative z-10 max-h-[95vh] max-w-[95vw] overflow-auto flex items-center justify-center">
+                                    <img :src="imgSrc"
+                                        class="rounded shadow-lg border-4 border-white max-h-[90vh] max-w-[90vw]" />
+                                    <button @click="showImg = false"
+                                        class="absolute top-4 right-4 text-white text-3xl font-bold z-20 bg-black bg-opacity-40 rounded-full px-3 py-1 hover:bg-opacity-70"
+                                        aria-label="Tutup"
+                                        style="background-color: rgba(0, 0, 0, 0.7);">&times;</button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="px-6 py-3 border-t flex justify-end">
