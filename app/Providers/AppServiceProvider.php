@@ -7,6 +7,8 @@ use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
+use Livewire\Livewire;
+use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +32,20 @@ class AppServiceProvider extends ServiceProvider
         //
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
+        }
+        if(env('FORCE_HTTPS', false)) {
+            URL::forceScheme('https');
+            Livewire::setUpdateRoute(function ($handle) {
+                return Route::post('/livewire/update', $handle)
+                    ->middleware(['web'])
+                    ->name('livewire.update');
+            });
+            
+            Livewire::setScriptRoute(function ($handle) {
+                return Route::get('/livewire/livewire.js', $handle)
+                    ->middleware(['web'])
+                    ->name('livewire.js');
+            });
         }
         
     }
