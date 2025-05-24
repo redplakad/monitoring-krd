@@ -88,9 +88,7 @@ class RoleResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         /** @var \App\Models\User|null $user */
-        /* $user = Filament::auth()->user();
+        $user = Filament::auth()->user();
         return $user && method_exists($user, 'hasRole') && $user->hasRole('Administrator');
-        */
-        return true; // Always show the Role resource in navigation
     }
 }
