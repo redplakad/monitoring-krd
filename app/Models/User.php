@@ -52,5 +52,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(DataKaryawan::class, 'user_id');
     }
+    
+    public function monitoringKredit()
+    {
+        return $this->hasMany(MonitoringKredit::class);
+    }
 
 }

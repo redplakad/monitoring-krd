@@ -45,7 +45,7 @@ class NominatifKreditResource extends Resource
         {
             return $infolist
                 ->schema([
-                    Infolists\Components\TextEntry::make('POKOK_PINJAMAN')
+                Infolists\Components\TextEntry::make('POKOK_PINJAMAN')
                             ->label('Bakidebet')->money('IDR'),
                     Infolists\Components\TextEntry::make('KODE_KOLEK')
                             ->label('Kol'),
@@ -63,7 +63,7 @@ class NominatifKreditResource extends Resource
             ])
             ->columns([
                 //
-                Tables\Columns\TextColumn::make("DATADATE")->label("Datadate"),
+                //Tables\Columns\TextColumn::make("DATADATE")->label("Datadate"),
                 Tables\Columns\TextColumn::make("NOMOR_REKENING")->label(
                     "No Rekening"
                 ),
