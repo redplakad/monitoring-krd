@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PositionResource\Pages;
-use App\Filament\Resources\PositionResource\RelationManagers;
-use App\Models\Position;
+use App\Filament\Resources\RoleResource\Pages;
+use App\Filament\Resources\RoleResource\RelationManagers;
+use App\Models\Role;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,24 +13,27 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Spatie\Permission\Models\Role as ModelsRole;
 
-class PositionResource extends Resource
+class RoleResource extends Resource
 {
-    protected static ?string $model = Position::class;
+    protected static ?string $model = ModelsRole::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
-    protected static ?string $navigationLabel = 'Position';
-    protected static ?string $pluralModelLabel = 'Positions';
-    protected static ?string $modelLabel = 'Position';
+    protected static ?string $navigationIcon = 'heroicon-o-key';
     protected static ?string $navigationGroup = 'Administrator';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama')
+                Forms\Components\TextInput::make('name')
+                    ->label('Role Name')
                     ->required()
-                    ->maxLength(255),
+                    ->unique(ignoreRecord: true),
+                Forms\Components\TextInput::make('guard_name')
+                    ->label('Guard Name')
+                    ->default('web')
+                    ->required(),
             ]);
     }
 
@@ -38,16 +41,21 @@ class PositionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nama')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Role Name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('guard_name')
+                    ->label('Guard Name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('users_count')
+                    ->label('Total Users')
+                    ->counts('users')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([
                 //
@@ -72,9 +80,9 @@ class PositionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPositions::route('/'),
-            'create' => Pages\CreatePosition::route('/create'),
-            'edit' => Pages\EditPosition::route('/{record}/edit'),
+            'index' => Pages\ListRoles::route('/'),
+            'create' => Pages\CreateRole::route('/create'),
+            'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }
     public static function shouldRegisterNavigation(): bool

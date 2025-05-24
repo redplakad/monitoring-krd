@@ -17,7 +17,14 @@ class MonitoringKreditResource extends Resource
 {
     protected static ?string $model = MonitoringKredit::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-check';
+    protected static ?string $navigationGroup = 'Kredit';
+    protected static ?string $navigationLabel = 'Monitoring Kredit';
+    protected static ?string $pluralModelLabel = 'Monitoring Kredit';
+    protected static ?string $modelLabel = 'Monitoring Kredit';
+    protected static ?string $slug = 'monitoring-kredits';
+    protected static ?string $label = 'Monitoring Kredit';
+    
 
     public static function form(Form $form): Form
     {

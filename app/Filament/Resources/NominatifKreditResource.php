@@ -26,7 +26,13 @@ class NominatifKreditResource extends Resource
 {
     protected static ?string $model = NominatifKredit::class;
 
-    protected static ?string $navigationIcon = "heroicon-o-document";
+    protected static ?string $navigationIcon = "heroicon-o-clipboard-document-list";
+    protected static ?string $navigationGroup = "Kredit";  
+    protected static ?string $navigationLabel = "Nominatif Kredit";
+    protected static ?string $label = "Nominatif Kredit";
+    protected static ?string $pluralLabel = "Nominatif Kredit";
+    protected static ?string $slug = "nominatif-kredits";
+    
 
     public static function form(Form $form): Form
     {

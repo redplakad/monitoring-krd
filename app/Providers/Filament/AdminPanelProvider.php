@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -58,6 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(
                 DebuggerPlugin::make()
                     ->navigationGroup(condition: true, label: 'Debugger')
+                    ->authorize(condition: fn() => Filament::auth()->user() && method_exists(Filament::auth()->user(), 'hasRole') && Filament::auth()->user()->hasRole('Administrator'))
             )
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s');
