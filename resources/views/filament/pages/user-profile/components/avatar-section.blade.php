@@ -5,7 +5,7 @@
             <img src="{{ asset('storage/' . $user->dataKaryawan->foto_profil) }}"
                  class="object-cover w-full h-full" alt="Avatar">
         @else
-            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&size=128"
+            <img src="https://avatar.iran.liara.run/public/boy?username={{ $user->name }}&size=128"
                  class="object-cover w-full h-full" alt="Avatar">
         @endif
     </div>

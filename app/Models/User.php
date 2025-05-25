@@ -58,4 +58,9 @@ class User extends Authenticatable
         return $this->hasMany(MonitoringKredit::class);
     }
 
+    public function monitoringKredits()
+    {
+        return $this->hasMany(MonitoringKredit::class, 'user_id');
+    }
+
 }
