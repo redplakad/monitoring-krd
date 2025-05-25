@@ -133,7 +133,7 @@ class UserMonitoringOverview extends BaseWidget
                 ->color('success')
                 ->chart($komunikasiChart),
 
-            Stat::make('Pembayaran', number_format(MonitoringKredit::sum('pembayaran') * 1000, 0, ',', '.'))
+            Stat::make('Pembayaran', number_format(MonitoringKredit::sum('pembayaran'), 0, ',', '.'))
                 ->description($pembayaranGrowthText)
                 ->descriptionIcon($pembayaranGrowthIcon)
                 ->color('success')

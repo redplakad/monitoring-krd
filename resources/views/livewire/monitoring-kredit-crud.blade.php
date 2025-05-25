@@ -96,7 +96,7 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse ($monitorings as $item)
                         <tr>
-                            <td class="px-4 py-2 text-xs text-gray-700">{{ $item->created_at->format('d M y') }}</td>
+                            <td class="px-4 py-2 text-xs text-gray-700">{{ $item->created_at->format('d/m/Y') }}</td>
                             <td class="px-4 py-2 text-xs text-gray-700">{{ $item->user->name ?? '-' }}</td>
                             <td class="px-4 py-2 text-xs text-gray-700">{{ $item->TINDAKAN }}</td>
                             <td class="px-4 py-2 text-xs text-gray-700">{{ $item->HASIL_TINDAKAN }}</td>

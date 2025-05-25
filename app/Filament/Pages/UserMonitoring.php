@@ -49,8 +49,12 @@ class UserMonitoring extends Page implements HasTable
                     ->withSum('monitoringKredit as total_pembayaran', 'pembayaran')
             )
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name')->label('Nama')->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('email')->label('Email')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('name')
+                    ->label('Nama')
+                    ->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('dataKaryawan.position.nama')
+                    ->label('Jabatan')
+                    ->default('-'),
                 \Filament\Tables\Columns\TextColumn::make('jumlah_kunjungan')->label('Kunjungan'),
                 \Filament\Tables\Columns\TextColumn::make('jumlah_komunikasi')->label('Komunikasi'),
                 \Filament\Tables\Columns\TextColumn::make('total_tindakan')
@@ -61,10 +65,17 @@ class UserMonitoring extends Page implements HasTable
                             '(COALESCE(jumlah_kunjungan,0) + COALESCE(jumlah_komunikasi,0)) ' . $direction
                         );
                     }),
-                 \Filament\Tables\Columns\TextColumn::make('total_pembayaran')
-                ->label('Total Pembayaran')
-                ->formatStateUsing(fn($state) => "Rp " . number_format($state, 0, '.', ','))
-        ]);
+                \Filament\Tables\Columns\TextColumn::make('total_pembayaran')
+                    ->label('Total Pembayaran')
+                    ->formatStateUsing(fn($state) => "Rp " . number_format($state, 0, '.', ','))
+            ])
+            ->actions([
+                \Filament\Tables\Actions\Action::make('lihat_profil')
+                    ->label('Profil')
+                    ->icon('heroicon-o-user-circle')
+                    ->url(fn ($record) => route('filament.admin.pages.user-profile', ['id' => sha1($record->id)]))
+                    ->openUrlInNewTab()
+            ]);
     }
 
     public function getHeaderWidgets(): array

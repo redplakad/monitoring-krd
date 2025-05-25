@@ -6,7 +6,6 @@ use Filament\Resources\Pages\Page;
 use App\Models\NominatifKredit;
 use App\Filament\Resources\NominatifKreditResource;
 use App\Models\MonitoringKredit;
-use Illuminate\Contracts\Encryption\DecryptException;
 
 class DetailKredit extends Page
 {
@@ -20,17 +19,12 @@ class DetailKredit extends Page
 
     public function mount($record): void
     {
-        try {
-            $id = $record;
-        } catch (DecryptException $e) {
-            abort(403, 'Payload tidak valid.');
-        }
-
-        // Ambil record utama
-        $recordModel = NominatifKredit::whereRaw('sha1(id) = ?', [$id])->first();
+        $nomorRekening = $record;
+        // Ambil record utama berdasarkan NOMOR_REKENING
+        $recordModel = NominatifKredit::where('NOMOR_REKENING', $nomorRekening)->first();
 
         if (!$recordModel) {
-            abort(404, 'Data CIF tidak ditemukan.');
+            abort(404, 'Data Kredit tidak ditemukan.');
         }
 
         $noCif = $recordModel->NO_CIF;

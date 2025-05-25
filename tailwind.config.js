@@ -4,6 +4,8 @@ module.exports = {
     './resources/**/*.blade.php',
     './resources/**/*.js',
     './resources/**/*.vue',
+    './app/Filament/**/*.php', // Tambahkan ini
+    './vendor/filament/**/*.blade.php', /
   ],
   theme: {
     extend: {

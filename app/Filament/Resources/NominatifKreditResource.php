@@ -20,6 +20,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use App\Filament\Resources\NominatifKreditResource\Pages\DetailKredit;
+use Filament\Facades\Filament;
 use Filament\Tables\Actions\Action;
 
 class NominatifKreditResource extends Resource
@@ -57,9 +58,13 @@ class NominatifKreditResource extends Resource
 
     public static function table(Table $table): Table
     {
+        
+        $user = Filament::auth()->user();
         return $table
             ->headerActions([
-                ImportAction::make()->importer(NominatifKreditImporter::class),
+                ImportAction::make()
+                ->importer(NominatifKreditImporter::class)
+                ->visible(fn () => Filament::auth()->user()->hasRole('Administrator'))
             ])
             ->columns([
                 //
@@ -189,7 +194,7 @@ class NominatifKreditResource extends Resource
                 Action::make('lihat_detail')
                     ->label('Detail')
                     ->icon('heroicon-o-eye')
-                    ->url(fn (NominatifKredit $record): string => route('filament.admin.resources.nominatif-kredits.detail', ['record' => sha1($record->id)]))
+                    ->url(fn (NominatifKredit $record): string => route('filament.admin.resources.nominatif-kredits.detail', ['record' => $record->NOMOR_REKENING]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
