@@ -74,7 +74,6 @@ class UserMonitoring extends Page implements HasTable
                     ->label('Profil')
                     ->icon('heroicon-o-user-circle')
                     ->url(fn ($record) => route('filament.admin.pages.user-profile', ['id' => sha1($record->id)]))
-                    ->openUrlInNewTab()
             ]);
     }
 
