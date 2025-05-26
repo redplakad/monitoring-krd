@@ -63,7 +63,19 @@ class UserResource extends Resource
                         ->searchable()
                         ->required(), 
                     Forms\Components\Select::make('position_id')
-                        ->label('Position')->options(Position::all()->pluck('nama', 'id'))->searchable()->required(), Forms\Components\TextInput::make('kode_ao')->label('Kode AO'), 
+                        ->label('Position')->options(Position::all()->pluck('nama', 'id'))->searchable()->required(), 
+                    Forms\Components\Select::make('kode_ao')
+                        ->label('Kode AO')
+                        ->options(function () {
+                            return \App\Models\NominatifKredit::select('AO')
+                                ->distinct()
+                                ->whereNotNull('AO')
+                                ->orderBy('AO')
+                                ->pluck('AO', 'AO')
+                                ->toArray();
+                        })
+                        ->searchable()
+                        ->preload(), 
                     Forms\Components\TextInput::make('no_telepon')
                         ->label('No Telepon'), 
                     Forms\Components\TextInput::make('no_wa')

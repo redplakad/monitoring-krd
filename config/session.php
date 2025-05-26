@@ -18,7 +18,20 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => env('SESSION_DRIVER', 'redis'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Connection
+    |--------------------------------------------------------------------------
+    |
+    | When using the "redis" session driver, you may specify the connection
+    | that should be used to manage these sessions. This should correspond
+    | to a connection defined in your Redis configuration file above.
+    |
+    */
+
+    'connection' => env('SESSION_CONNECTION', 'sessions'),
 
     /*
     |--------------------------------------------------------------------------

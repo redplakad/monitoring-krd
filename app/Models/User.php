@@ -63,4 +63,65 @@ class User extends Authenticatable
         return $this->hasMany(MonitoringKredit::class, 'user_id');
     }
 
+    public function countDebitur()
+    {
+        // Get the latest DATADATE
+        $latestDate = NominatifKredit::max('DATADATE');
+        
+        // Get kode_ao from DataKaryawan
+        $karyawan = DataKaryawan::where('user_id', $this->id)->first();
+        if (!$karyawan || !$karyawan->kode_ao) {
+            return 0;
+        }
+
+        // Count debitur with conditions
+        return NominatifKredit::where('DATADATE', $latestDate)
+            ->where('AO', $karyawan->kode_ao)
+            ->count();
+    }
+
+    public function countNPL()
+    {
+        // Get the latest DATADATE
+        $latestDate = NominatifKredit::max('DATADATE');
+        
+        // Get kode_ao from DataKaryawan
+        $karyawan = DataKaryawan::where('user_id', $this->id)->first();
+        if (!$karyawan || !$karyawan->kode_ao) {
+            return 0;
+        }
+
+        // Count NPL debitur with conditions
+        return NominatifKredit::where('DATADATE', $latestDate)
+            ->where('AO', $karyawan->kode_ao)
+            ->where('KODE_KOLEK', '>=', 3)
+            ->count();
+    }
+
+    public function SumNPL()
+    {
+        // Get the latest DATADATE
+        $latestDate = NominatifKredit::max('DATADATE');
+        
+        // Get kode_ao from DataKaryawan
+        $karyawan = DataKaryawan::where('user_id', $this->id)->first();
+        if (!$karyawan || !$karyawan->kode_ao) {
+            return 0;
+        }
+
+        // Count NPL debitur with conditions
+        return NominatifKredit::where('DATADATE', $latestDate)
+            ->where('AO', $karyawan->kode_ao)
+            ->where('KODE_KOLEK', '>=', 3)
+            ->SUM('POKOK_PINJAMAN');
+    }
+    public function nplPercentage()
+    {
+        $totalDebitur = $this->countDebitur();
+        if ($totalDebitur === 0) {
+            return 0;
+        }
+        return round(($this->countNPL() / $totalDebitur) * 100, 2);
+    }
+
 }
