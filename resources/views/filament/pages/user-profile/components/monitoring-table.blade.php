@@ -12,24 +12,28 @@
     <table class="w-full text-sm text-left">
         <thead>
             <tr class="bg-gray-100">
-                <th class="py-2 px-3 font-semibold text-gray-600">Tanggal</th>
-                <th class="py-2 px-3 font-semibold text-gray-600">NoRekening</th>
-                <th class="py-2 px-3 font-semibold text-gray-600">Tindakan</th>
-                <th class="py-2 px-3 font-semibold text-gray-600">Hasil Tindakan</th>
-                <th class="py-2 px-3 font-semibold text-gray-600">Detail</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Tanggal</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">CIF</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">NoRekening</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Nama Nasabah</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Tindakan</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Hasil Tindakan</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Detail</th>
             </tr>
         </thead>
         <tbody>
             @forelse($user->monitoringKredit as $kredit)
                 <tr class="border-b">
-                    <td class="py-2 px-3">{{ $kredit->created_at ? $kredit->created_at->format('d/m/Y') : '-' }}</td>
-                    <td class="py-2 px-3">{{ $kredit->NOMOR_REKENING ?? '-' }}</td>
-                    <td class="py-2 px-3">{{ $kredit->TINDAKAN ?? '-' }}</td>
-                    <td class="py-2 px-3">{{ $kredit->HASIL_TINDAKAN ?? '-' }}</td>
-                    <td class="py-2 px-3">
+                    <td class="py-2 px-3 text-xs">{{ $kredit->created_at ? $kredit->created_at->format('d/m/Y') : '-' }}</td>
+                    <td class="py-2 px-3 text-xs">{{ $kredit->CIF ?? '-' }}</td>
+                    <td class="py-2 px-3 text-xs">{{ $kredit->NOMOR_REKENING ?? '-' }}</td>
+                    <td class="py-2 px-3 text-xs">{{ $kredit->NAMA_NASABAH ?? '-' }}</td>
+                    <td class="py-2 px-3 text-xs">{{ $kredit->TINDAKAN ?? '-' }}</td>
+                    <td class="py-2 px-3 text-xs">{{ $kredit->HASIL_TINDAKAN ?? '-' }}</td>
+                    <td class="py-2 px-3 text-xs">
                         <x-filament::link @click="showDetailModal = true; selectedRecord = {{ $kredit->load('buktiTindakan')->toJson() }}"
                             icon="heroicon-s-eye"
-                            class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150"
+                            class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150 text-xs"
                             title="Lihat Detail" size="xs" color="success">
                             Detail
                         </x-filament::link>
@@ -37,7 +41,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="py-4 text-center text-gray-400">Tidak ada data monitoring kredit.</td>
+                    <td colspan="7" class="py-4 text-center text-gray-400 text-xs">Tidak ada data monitoring kredit.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -86,18 +90,32 @@
 
                             <!-- Kolom 2 -->
                             <div class="bg-gray-50 p-3 rounded-lg">
-                                <label class="text-sm font-medium text-gray-500">Nomor Rekening</label>
-                                <p class="mt-1 text-sm text-gray-900" x-text="selectedRecord?.NOMOR_REKENING || '-'">
+                                <label class="text-sm font-medium text-gray-500">CIF</label>
+                                <p class="mt-1 text-sm text-gray-900" x-text="selectedRecord?.CIF || '-'">
                                 </p>
                             </div>
 
                             <!-- Kolom 3 -->
                             <div class="bg-gray-50 p-3 rounded-lg">
+                                <label class="text-sm font-medium text-gray-500">Nomor Rekening</label>
+                                <p class="mt-1 text-sm text-gray-900" x-text="selectedRecord?.NOMOR_REKENING || '-'">
+                                </p>
+                            </div>
+
+                            <!-- Kolom 4 -->
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <label class="text-sm font-medium text-gray-500">Nama Nasabah</label>
+                                <p class="mt-1 text-sm text-gray-900" x-text="selectedRecord?.NAMA_NASABAH || '-'">
+                                </p>
+                            </div>
+
+                            <!-- Kolom 5 -->
+                            <div class="bg-gray-50 p-3 rounded-lg">
                                 <label class="text-sm font-medium text-gray-500">Tindakan</label>
                                 <p class="mt-1 text-sm text-gray-900" x-text="selectedRecord?.TINDAKAN || '-'"></p>
                             </div>
 
-                            <!-- Kolom 4 -->
+                            <!-- Kolom 6 -->
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <label class="text-sm font-medium text-gray-500">Pembayaran</label>
                                 <p class="mt-1 text-sm text-gray-900"
@@ -201,3 +219,4 @@
             </div>
         </div>
     </div>
+</div>
