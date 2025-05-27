@@ -38,6 +38,8 @@ class MonitoringTableFilter extends Component
                   ->where(function($q) use ($weekNum, $startOfMonth) {
                       $q->whereRaw('FLOOR((DAY(created_at) - 1) / 7) + 1 = ?', [$weekNum]);
                   });
+        } elseif ($this->periode === 'year') {
+            $query->whereYear('created_at', Carbon::now()->year);
         }
         
         $this->monitoringData = $query->get()->toArray();

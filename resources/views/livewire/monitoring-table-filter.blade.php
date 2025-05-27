@@ -14,6 +14,7 @@
                 <option value="week3">Minggu ke-3</option>
                 <option value="week4">Minggu ke-4</option>
                 <option value="month">Bulan ini</option>
+                <option value="year">Tahun ini</option>
             </select>
             @if($loading)
                 <svg class="animate-spin h-5 w-5 text-success-600 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

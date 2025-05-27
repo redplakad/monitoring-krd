@@ -31,6 +31,8 @@ class MonitoringKreditCrud extends Component
     public $deleteSuccessMessage = null;
     public $editSuccessMessage = null;
     protected $paginationTheme = 'tailwind'; // sesuaikan dengan styling
+    public $latitude;
+    public $longitude;
 
     public function mount($recordId)
     {
@@ -51,7 +53,7 @@ class MonitoringKreditCrud extends Component
     public function showCreateModal()
     {
         $this->resetForm();
-         $this->reset(['tindakan', 'pembayaran', 'hasil_tindakan', 'photos', 'oldPhotos', 'monitoring_id']);
+        $this->reset(['tindakan', 'pembayaran', 'hasil_tindakan', 'photos', 'oldPhotos', 'monitoring_id', 'latitude', 'longitude']);
         $this->modalFormVisible = true;
     }
 
@@ -64,6 +66,12 @@ class MonitoringKreditCrud extends Component
         $this->pembayaran = $monitoring->PEMBAYARAN;
         $this->hasil_tindakan = $monitoring->HASIL_TINDAKAN;
         $this->oldPhotos = MonitoringBuktiTindakan::where('monitoring_id', $monitoring->id)->get();
+        // Ambil koordinat terakhir jika ada
+        $koordinat = \App\Models\MonitoringKoordinat::where('user_id', Auth::id())
+            ->where('nomor_rekening', $this->recordId)
+            ->latest()->first();
+        $this->latitude = $koordinat ? $koordinat->latitude : null;
+        $this->longitude = $koordinat ? $koordinat->longitude : null;
         $this->modalFormVisible = true;
     }
 
@@ -110,7 +118,9 @@ class MonitoringKreditCrud extends Component
             'tindakan' => 'required|string|max:255',
             'pembayaran' => 'nullable|numeric',
             'hasil_tindakan' => 'required|string|max:255',
-            'photos.*' => 'image|max:1024', // validasi upload
+            'photos.*' => 'image|max:1024',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
 
         $isUpdate = !is_null($this->monitoring_id);
@@ -127,6 +137,16 @@ class MonitoringKreditCrud extends Component
                 'user_id' => Auth::id(),
             ]
         );
+
+        // Simpan koordinat jika ada
+        if ($this->latitude && $this->longitude) {
+            \App\Models\MonitoringKoordinat::create([
+                'user_id' => Auth::id(),
+                'nomor_rekening' => $this->recordId,
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
+            ]);
+        }
 
         // Simpan file gambar ke storage dan path ke database
         foreach ($this->photos as $photo) {

@@ -59,44 +59,33 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
-                        <div>
-                            <p class="text-xs text-gray-500">Plafond</p>
-                            <p class="font-medium text-sm text-gray-700">Rp
-                                {{ number_format($record['PLAFOND_AWAL'], 0, ',', '.') }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Bakidebet</p>
-                            <p class="font-medium text-sm text-gray-700">Rp
-                                {{ number_format($record['POKOK_PINJAMAN'], 0, ',', '.') }}</p>
-                        </div>
-                    </div>
+                    <x-detail-item-pair
+                        label1="Nomor Rekening"
+                        value1="{{ $record['NOMOR_REKENING'] }}"
+                        label2="Kolektibilitas"
+                        value2="{{ $label }}"
+                    />
 
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
-                        <div>
-                            <p class="text-xs text-gray-500">Tanggal Cair</p>
-                            <p class="font-medium text-sm text-gray-700">
-                                {{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_PK'])->format('d M Y') }}
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Tanggal Jth Tempo</p>
-                            <p class="font-medium text-sm text-gray-700">
-                                {{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_AKHIR_FAS'])->format('d M Y') }}
-                            </p>
-                        </div>
+                    <x-detail-item-pair
+                        label1="Plafond"
+                        value1="Rp {{ number_format($record['PLAFOND_AWAL'], 0, ',', '.') }}"
+                        label2="Bakidebet"
+                        value2="Rp {{ number_format($record['POKOK_PINJAMAN'], 0, ',', '.') }}"
+                    />
 
-                    </div>
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
-                        <div>
-                            <p class="text-xs text-gray-500">Angsuran</p>
-                            <p class="font-medium text-sm text-gray-700">Rp. {{ number_format($record['ANGSURAN_TOTAL']) }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Jangka Waktu</p>
-                            <p class="font-medium text-sm text-gray-700">{{ $record['JANGKA_WAKTU'] }} Bln</p>
-                        </div>
-                    </div>
+                    <x-detail-item-pair
+                        label1="Tanggal Cair"
+                        value1="{{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_PK'])->format('d M Y') }}"
+                        label2="Tanggal Jth Tempo"
+                        value2="{{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_AKHIR_FAS'])->format('d M Y') }}"
+                    />
+
+                    <x-detail-item-pair
+                        label1="Angsuran"
+                        value1="Rp. {{ number_format($record['ANGSURAN_TOTAL']) }}"
+                        label2="Jangka Waktu"
+                        value2="{{ $record['JANGKA_WAKTU'] }} Bln"
+                    />
 
                     <div class="text-sm text-gray-600 pt-2 border-t">
                         <div class="flex justify-between p-1"><span>Tunggakan Pokok</span><span>Rp
@@ -121,84 +110,48 @@
 
                 <!-- Kolom Kanan: Alamat Nasabah -->
                 <div class="bg-white shadow-lg rounded-xl p-6 space-y-4 mt-3">
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
-                        <div>
-                            <p class="text-xs text-gray-500">Alamat</p>
-                            <p class="font-medium text-sm text-gray-700">
-                                {{ $record['ALAMAT'] }}
-                            </p>
-                        </div>
-                    </div>
+                    <x-detail-item-pair
+                        label1="Alamat"
+                        value1="{{ $record['ALAMAT'] }}"
+                    />
 
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
-                        <div>
-                            <p class="text-xs text-gray-500">Kelurahan</p>
-                            <p class="font-medium text-sm text-gray-700">{{ $record['KELURAHAN'] }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">Kecamatan</p>
-                            <p class="font-medium text-sm text-gray-700">{{ $record['KECAMATAN'] }}</p>
-                        </div>
-                    </div>
+                    <x-detail-item-pair
+                        label1="Kelurahan"
+                        value1="{{ $record['KELURAHAN'] }}"
+                        label2="Kecamatan"
+                        value2="{{ $record['KECAMATAN'] }}"
+                    />
 
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
-                        <div>
-                            <p class="text-xs text-gray-500">Tempat Bekerja</p>
-                            <p class="font-medium text-sm text-gray-700">{{ $record['TEMPAT_BEKERJA'] }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-gray-500">No Telepon</p>
-                            <p class="font-medium text-sm text-gray-700">{{ $record['NO_HP'] }}</p>
-                        </div>
-                    </div>
+                    <x-detail-item-pair
+                        label1="Tempat Bekerja"
+                        value1="{{ $record['TEMPAT_BEKERJA'] }}"
+                        label2="No Telepon"
+                        value2="{{ $record['NO_HP'] }}"
+                    />
                 </div>
             </div>
 
             <div class="md:col-span-2">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Card Skor Resiko -->
-                    <div class="bg-white shadow rounded-xl p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">Skor Resiko</p>
-                                <p class="text-2xl font-bold text-gray-800">0</p>
-                            </div>
-                            <div>
-                                <img src="{{ asset('images/icons/icon-risk-red.png') }}" alt="Icon Call"
-                                    class="w-10 h-10">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card Jumlah Kunjungan -->
-                    <div class="bg-white shadow rounded-xl p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">Kunjungan</p>
-                                <p class="text-2xl font-bold text-gray-800">{{ $count_kunjungan }}</p>
-                            </div>
-                            <div>
-                                <img src="{{ asset('images/icons/icon-visit.png') }}" alt="Icon Call"
-                                    class="w-10 h-10">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card Monitoring -->
-                    <div class="bg-white shadow rounded-xl p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">Panggilan</p>
-                                <p class="text-2xl font-bold text-gray-800">{{ $count_panggilan }}</p>
-                            </div>
-                            <div>
-                                <img src="{{ asset('images/icons/icon-call.png') }}" alt="Icon Call" class="w-10 h-10">
-                            </div>
-                        </div>
-                    </div>
+                    <x-info-card
+                        label="Skor Resiko"
+                        value="0"
+                        iconPath="images/icons/icon-risk-red.png"
+                        iconAlt="Icon Skor Resiko"
+                    />
+                    <x-info-card
+                        label="Kunjungan"
+                        value="{{ $count_kunjungan }}"
+                        iconPath="images/icons/icon-visit.png"
+                        iconAlt="Icon Kunjungan"
+                    />
+                    <x-info-card
+                        label="Panggilan"
+                        value="{{ $count_panggilan }}"
+                        iconPath="images/icons/icon-call.png"
+                        iconAlt="Icon Panggilan"
+                    />
                 </div>
-
-
                 @livewire('monitoring-kredit-crud', ['recordId' => $record->NOMOR_REKENING])
             </div>
         </div>

@@ -248,6 +248,53 @@
                                 @endif
                             </div>
 
+                            <div x-data="{
+    map: null,
+    marker: null,
+    mapId: 'map-modal-' + Math.random().toString(36).substring(2, 10),
+    init() {
+        // Tunggu Leaflet ter-load
+        if (typeof L === 'undefined') {
+            const leafletScript = document.createElement('script');
+            leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            leafletScript.onload = () => this.initMap();
+            document.head.appendChild(leafletScript);
+            const leafletCss = document.createElement('link');
+            leafletCss.rel = 'stylesheet';
+            leafletCss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(leafletCss);
+        } else {
+            this.initMap();
+        }
+    },
+    initMap() {
+        this.$nextTick(() => {
+            this.map = L.map(this.mapId).setView([-2.5489, 118.0149], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(this.map);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    this.map.setView([lat, lng], 16);
+                    this.marker = L.marker([lat, lng]).addTo(this.map)
+                        .bindPopup('Lokasi Anda Sekarang').openPopup();
+                }, () => {
+                    // Gagal mendapatkan lokasi, biarkan default
+                });
+            }
+        });
+    }
+}" x-init="init()" class="mb-3">
+    <label class="block text-xs font-semibold mb-1">Lokasi Anda Saat Ini</label>
+    <div class="mt-2">
+        <div :id="mapId" class="w-full h-40 rounded border"></div>
+    </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
                             <div class="flex justify-end space-x-2">
                                 <x-filament::button type="button" color="gray" size="sm"
                                     wire:click="$set('modalFormVisible', false)">
