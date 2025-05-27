@@ -318,15 +318,15 @@
                             </div>
                             <!-- Modal Fullscreen Preview -->
                             <div x-show="showImg" x-transition
-                                class="fixed inset-0 z-50 flex items-center justify-center"
-                                style="display: none;background-color: rgba(0,0,0,0.5);">
+                                class="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+                                style="display: none;background-color: rgba(0, 0, 0, 0.8);" @click="showImg = false">
                                 <!-- Overlay -->
                                 <div class="absolute inset-0 bg-black bg-opacity-80" @click="showImg = false"></div>
                                 <!-- Scrollable Image Container -->
-                                <div
-                                    class="relative z-10 max-h-[95vh] max-w-[95vw] overflow-auto flex items-center justify-center">
+                                <div class="relative z-10 w-full h-full flex items-center justify-center overflow-auto">
                                     <img :src="imgSrc"
-                                        class="rounded shadow-lg border-4 border-white max-h-[90vh] max-w-[90vw]" />
+                                        class="rounded shadow-lg border-4 border-white max-h-[95vh] max-w-[95vw] object-contain mx-auto my-auto block"
+                                        style="display: block; margin: auto;" />
                                     <button @click="showImg = false"
                                         class="absolute top-4 right-4 text-white text-3xl font-bold z-20 bg-black bg-opacity-40 rounded-full px-3 py-1 hover:bg-opacity-70"
                                         aria-label="Tutup"

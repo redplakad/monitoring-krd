@@ -85,6 +85,13 @@
                                 {{ \Carbon\Carbon::createFromFormat('Ymd', $record['TGL_AKHIR_FAS'])->format('d M Y') }}
                             </p>
                         </div>
+
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+                        <div>
+                            <p class="text-xs text-gray-500">Angsuran</p>
+                            <p class="font-medium text-sm text-gray-700">Rp. {{ number_format($record['ANGSURAN_TOTAL']) }}</p>
+                        </div>
                         <div>
                             <p class="text-xs text-gray-500">Jangka Waktu</p>
                             <p class="font-medium text-sm text-gray-700">{{ $record['JANGKA_WAKTU'] }} Bln</p>

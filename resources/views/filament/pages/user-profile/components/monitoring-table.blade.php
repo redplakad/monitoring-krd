@@ -1,13 +1,27 @@
 {{-- Monitoring Table Section --}}
-<div x-data="{
-    showDetailModal: false,
-    selectedRecord: null,
-    showImageModal: false,
-    selectedImage: null
-}" class="kolom-2 flex-1 bg-white rounded-lg shadow p-6 overflow-x-auto">
+<div x-data="monitoringTable()" class="kolom-2 flex-1 bg-white rounded-lg shadow p-6 overflow-x-auto">
+    <!-- Periode Filter -->
+    <div class="mb-4 flex flex-wrap items-center gap-2">
+        <label for="periode" class="text-xs font-semibold text-gray-600">Periode:</label>
+        <select id="periode" x-model="periode" @change="filterData()"
+            class="text-xs border-gray-300 rounded px-2 py-1 focus:ring focus:ring-success-200">
+            <option value="all">Semua</option>
+            <option value="week1">Minggu ke-1</option>
+            <option value="week2">Minggu ke-2</option>
+            <option value="week3">Minggu ke-3</option>
+            <option value="week4">Minggu ke-4</option>
+            <option value="month">Bulan ini</option>
+        </select>
+        <template x-if="loading">
+            <svg class="animate-spin h-5 w-5 text-success-600 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+        </template>
+    </div>
     <h3 class="text-lg font-bold mb-4 text-gray-700">Monitoring Kredit</h3>
     <div class="mb-2 text-xs text-gray-500">
-        Total data: {{ $user->monitoringKredit->count() }}
+        Total data: <span x-text="filteredData.length"></span>
     </div>
     <table class="w-full text-sm text-left">
         <thead>
@@ -22,28 +36,39 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($user->monitoringKredit as $kredit)
-                <tr class="border-b">
-                    <td class="py-2 px-3 text-xs">{{ $kredit->created_at ? $kredit->created_at->format('d/m/Y') : '-' }}</td>
-                    <td class="py-2 px-3 text-xs">{{ $kredit->CIF ?? '-' }}</td>
-                    <td class="py-2 px-3 text-xs">{{ $kredit->NOMOR_REKENING ?? '-' }}</td>
-                    <td class="py-2 px-3 text-xs">{{ $kredit->NAMA_NASABAH ?? '-' }}</td>
-                    <td class="py-2 px-3 text-xs">{{ $kredit->TINDAKAN ?? '-' }}</td>
-                    <td class="py-2 px-3 text-xs">{{ $kredit->HASIL_TINDAKAN ?? '-' }}</td>
-                    <td class="py-2 px-3 text-xs">
-                        <x-filament::link @click="showDetailModal = true; selectedRecord = {{ $kredit->load('buktiTindakan')->toJson() }}"
-                            icon="heroicon-s-eye"
-                            class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150 text-xs"
-                            title="Lihat Detail" size="xs" color="success">
-                            Detail
-                        </x-filament::link>
+            <template x-if="loading">
+                <tr>
+                    <td colspan="7" class="py-8 text-center">
+                        <svg class="animate-spin h-8 w-8 text-success-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                        </svg>
+                        <div class="text-xs text-gray-500 mt-2">Memuat data...</div>
                     </td>
                 </tr>
-            @empty
+            </template>
+            <template x-for="kredit in filteredData" :key="kredit.id">
+                <tr class="border-b">
+                    <td class="py-2 px-3 text-xs" x-text="kredit.created_at ? new Date(kredit.created_at).toLocaleDateString('id-ID') : '-' "></td>
+                    <td class="py-2 px-3 text-xs" x-text="kredit.CIF || '-' "></td>
+                    <td class="py-2 px-3 text-xs" x-text="kredit.NOMOR_REKENING || '-' "></td>
+                    <td class="py-2 px-3 text-xs" x-text="kredit.NAMA_NASABAH || '-' "></td>
+                    <td class="py-2 px-3 text-xs" x-text="kredit.TINDAKAN || '-' "></td>
+                    <td class="py-2 px-3 text-xs" x-text="kredit.HASIL_TINDAKAN || '-' "></td>
+                    <td class="py-2 px-3 text-xs">
+                        <button @click="showDetailModal = true; selectedRecord = kredit"
+                            class="text-success-600 hover:text-success-700 cursor-pointer inline-flex items-center transition duration-150 text-xs">
+                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Detail
+                        </button>
+                    </td>
+                </tr>
+            </template>
+            <template x-if="!loading && filteredData.length === 0">
                 <tr>
                     <td colspan="7" class="py-4 text-center text-gray-400 text-xs">Tidak ada data monitoring kredit.</td>
                 </tr>
-            @endforelse
+            </template>
         </tbody>
     </table>
 
@@ -51,7 +76,7 @@
     <div x-show="showDetailModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"  @click="showDetailModal = false">
 
         <!-- Modal Overlay -->
         <div class="fixed inset-0 bg-gray-900 bg-opacity-75" style="background-color:rgba(0, 0, 0, 0.75) !important;">
@@ -134,7 +159,7 @@
                             <a
                                 :href="`/admin/nominatif-kredits/${selectedRecord.NOMOR_REKENING}/detail`"
                                 class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium tracking-tight rounded-lg transition bg-success hover:bg-success-500 focus:outline-none focus:ring-offset-2 focus:ring-2 focus:ring-success-600 text-white"
-                                style="text-decoration: none;background-color:oklch(52.7% 0.154 150.069);"
+                                style="text-decoration: none;background-color: #276749 !important;"
                             >
                                 <x-tabler-user-hexagon />
                                 Detail Debitur
@@ -148,7 +173,7 @@
 
                                 <!-- Container scroll hanya untuk gambar -->
                                 <div
-                                    class="max-h-[200px] overflow-y-auto pr-2 border border-gray-200 rounded-lg p-2 bg-white">
+                                    class="max-h-[200px] overflow-y-auto pr-2 border border-gray-200 rounded-lg p-2 bg-white" style="max-height: 320px;">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                         <template x-for="bukti in selectedRecord.bukti_tindakan" :key="bukti.id">
                                             <div class="relative group cursor-pointer w-full h-24 overflow-hidden rounded-md border border-gray-300 transition-transform duration-300 hover:scale-105"
@@ -194,29 +219,86 @@
     </div>
 
     <!-- Image Preview Modal -->
-    <div x-show="showImageModal" class="fixed inset-0 z-50" style="display: none;"
+    <div x-show="showImageModal" class="fixed inset-0 z-50" style="display: none;background-color:rgba(0, 0, 0, 0.75) !important;"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="showImageModal = false">
 
         <!-- Image Modal Overlay -->
-        <div class="fixed inset-0 bg-black bg-opacity-90" @click="showImageModal = false"></div>
+        <div class="fixed inset-0 bg-black bg-opacity-90"></div>
 
-        <div class="fixed inset-0 z-[9998] flex items-center justify-center p-4">
+        <div class="fixed inset-0 z-[9998] flex flex-col items-center justify-center p-0">
             <!-- Close Button -->
             <button @click="showImageModal = false"
-                class="absolute top-4 right-4 text-white hover:text-gray-300 focus:outline-none z-[9999]">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                class="absolute top-4 right-4 text-white hover:text-gray-300 focus:outline-none z-50 transition duration-150 rounded-full p-2" style="background-color: rgba(0, 0, 0, 0.7);">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
 
-            <!-- Image Container -->
-            <div class="w-screen h-screen flex items-center justify-center p-4" @click.self="showImageModal = false"
-                style="background-color: rgba(0, 0, 0, 0.7);">
+            <!-- Scrollable Image Container -->
+            <div class="w-full h-full overflow-y-auto flex items-center justify-center p-10">
                 <img :src="selectedImage ? '/storage/' + selectedImage : ''"
-                    class="max-h-screen max-w-screen w-auto h-auto object-contain" alt="Preview Bukti Tindakan">
+                    class="object-contain w-auto h-auto mx-auto my-8" alt="Preview Bukti Tindakan" style="max-height: 98vh !important; max-width: 90vw !important;">	
             </div>
         </div>
     </div>
 </div>
+<script>
+function monitoringTable() {
+    return {
+        showDetailModal: false,
+        selectedRecord: null,
+        showImageModal: false,
+        selectedImage: null,
+        periode: 'all',
+        loading: false,
+        allData: @json($user->monitoringKredit->map(function($item) {
+            return [
+                'id' => $item->id,
+                'created_at' => $item->created_at,
+                'CIF' => $item->CIF,
+                'NOMOR_REKENING' => $item->NOMOR_REKENING,
+                'NAMA_NASABAH' => $item->NAMA_NASABAH,
+                'TINDAKAN' => $item->TINDAKAN,
+                'HASIL_TINDAKAN' => $item->HASIL_TINDAKAN,
+                'PEMBAYARAN' => $item->PEMBAYARAN,
+                'bukti_tindakan' => $item->buktiTindakan,
+                ]
+            };
+        })->values()->all()),
+        filteredData: [],
+        filterData() {
+            this.loading = true;
+            setTimeout(() => {
+                const now = new Date();
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                const week = (date) => Math.ceil((date.getDate() - date.getDay() + 1) / 7);
+                if (this.periode === 'all') {
+                    this.filteredData = this.allData;
+                } else if (this.periode === 'month') {
+                    this.filteredData = this.allData.filter(item => {
+                        if (!item.created_at) return false;
+                        const dt = new Date(item.created_at);
+                        return dt >= startOfMonth && dt <= now;
+                    });
+                } else if (this.periode.startsWith('week')) {
+                    const weekNum = parseInt(this.periode.replace('week', ''));
+                    this.filteredData = this.allData.filter(item => {
+                        if (!item.created_at) return false;
+                        const dt = new Date(item.created_at);
+                        return dt >= startOfMonth && dt <= now && week(dt) === weekNum;
+                    });
+                }
+                this.loading = false;
+            }, 400); // Simulasi loading
+        },
+        init() {
+            this.filteredData = this.allData;
+        }
+    }
+}
+document.addEventListener('alpine:init', () => {
+    Alpine.data('monitoringTable', monitoringTable);
+});
+</script>
