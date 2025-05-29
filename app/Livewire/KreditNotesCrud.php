@@ -63,7 +63,7 @@ class KreditNotesCrud extends Component
     {
         $this->noteId = null;
         $this->content = '';
-        $this->tag = 'note';
+        $this->tag = '';
         $this->resetValidation();
     }
     
