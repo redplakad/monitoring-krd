@@ -37,11 +37,6 @@
                     
                     <!-- Action section: WhatsApp button followed by KreditNotes components -->
                     <div class="space-y-3">
-                        <!-- WhatsApp button in the first row -->
-                        <div>
-                            @livewire('whatsapp-button', ['nomorRekening' => $record['NOMOR_REKENING']])
-                        </div>
-                        
                         <!-- KreditNotes component in the second row -->
                         <div>
                             <livewire:kredit-notes-crud :nomorRekening="$record['NOMOR_REKENING']" />
