@@ -189,6 +189,36 @@ class NominatifKreditResource extends Resource
                             default => null,
                         }
                     ),
+                Filter::make("tempat_bekerja_filter")
+                    ->label("Filter Berdasarkan Tempat Bekerja")
+                    ->form([
+                        Select::make("tempat_bekerja")
+                            ->label("Pilih Tempat Bekerja")
+                            ->placeholder("Pilih atau cari tempat bekerja")
+                            ->options(function () {
+                                return \App\Models\NominatifKredit::query()
+                                    ->whereNotNull("TEMPAT_BEKERJA")
+                                    ->where("TEMPAT_BEKERJA", "<>", "")
+                                    ->pluck("TEMPAT_BEKERJA", "TEMPAT_BEKERJA")
+                                    ->unique()
+                                    ->sort()
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->required(false),
+                    ])
+                    ->query(
+                        fn(Builder $query, array $data): Builder =>
+                            $data["tempat_bekerja"]
+                                ? $query->where("TEMPAT_BEKERJA", $data["tempat_bekerja"])
+                                : $query
+                    )
+                    ->indicateUsing(
+                        fn(array $data): ?string =>
+                            $data["tempat_bekerja"]
+                                ? "Tempat Bekerja: {$data["tempat_bekerja"]}"
+                                : null
+                    ),
             ])
             ->actions([
                 Action::make('lihat_detail')
