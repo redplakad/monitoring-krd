@@ -270,20 +270,29 @@ function monitoringTable() {
         loading: false,
         currentPage: 1,
         itemsPerPage: 25,
-        allData: @json($user->monitoringKredit->map(function($item) {
-            return [
-                'id' => $item->id,
-                'created_at' => $item->created_at,
-                'CIF' => $item->CIF,
-                'NOMOR_REKENING' => $item->NOMOR_REKENING,
-                'NAMA_NASABAH' => $item->NAMA_NASABAH,
-                'TINDAKAN' => $item->TINDAKAN,
-                'HASIL_TINDAKAN' => $item->HASIL_TINDAKAN,
-                'PEMBAYARAN' => $item->PEMBAYARAN,
-                'bukti_tindakan' => $item->buktiTindakan,
-                ]
-            };
-        })->values()->all()),
+        allData: (() => {
+            // Sort descending by created_at
+            let data = @json($user->monitoringKredit->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'created_at' => $item->created_at,
+                    'CIF' => $item->CIF,
+                    'NOMOR_REKENING' => $item->NOMOR_REKENING,
+                    'NAMA_NASABAH' => $item->NAMA_NASABAH,
+                    'TINDAKAN' => $item->TINDAKAN,
+                    'HASIL_TINDAKAN' => $item->HASIL_TINDAKAN,
+                    'PEMBAYARAN' => $item->PEMBAYARAN,
+                    'bukti_tindakan' => $item->buktiTindakan,
+                ];
+            })->values()->all());
+            return data.sort((a, b) => {
+                // Null/undefined created_at should be last
+                if (!a.created_at && !b.created_at) return 0;
+                if (!a.created_at) return 1;
+                if (!b.created_at) return -1;
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
+        })(),
         filteredData: [],
         filterData() {
             this.loading = true;
@@ -292,24 +301,31 @@ function monitoringTable() {
                 const now = new Date();
                 const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                 const week = (date) => Math.ceil((date.getDate() - date.getDay() + 1) / 7);
+                let filtered;
                 if (this.periode === 'all') {
-                    this.filteredData = this.allData;
+                    filtered = this.allData;
                 } else if (this.periode === 'month') {
-                    this.filteredData = this.allData.filter(item => {
+                    filtered = this.allData.filter(item => {
                         if (!item.created_at) return false;
                         const dt = new Date(item.created_at);
                         return dt >= startOfMonth && dt <= now;
                     });
                 } else if (this.periode.startsWith('week')) {
                     const weekNum = parseInt(this.periode.replace('week', ''));
-                    this.filteredData = this.allData.filter(item => {
+                    filtered = this.allData.filter(item => {
                         if (!item.created_at) return false;
                         const dt = new Date(item.created_at);
                         return dt >= startOfMonth && dt <= now && week(dt) === weekNum;
                     });
                 }
+                // Sort filtered data descending by created_at
+                this.filteredData = filtered.slice().sort((a, b) => {
+                    if (!a.created_at && !b.created_at) return 0;
+                    if (!a.created_at) return 1;
+                    if (!b.created_at) return -1;
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
                 this.loading = false;
-                // this.updatePaginatedData(); // Ensure paginatedData is updated after filtering
             }, 400); // Simulasi loading
         },
         get paginatedData() {
@@ -325,23 +341,21 @@ function monitoringTable() {
         nextPage() {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
-                // this.updatePaginatedData();
             }
         },
         prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
-                // this.updatePaginatedData();
             }
         },
-        // updatePaginatedData() {
-        //     const start = (this.currentPage - 1) * this.itemsPerPage;
-        //     const end = start + this.itemsPerPage;
-        //     this.paginatedData = this.filteredData.slice(start, end);
-        // },
         init() {
-            this.filteredData = this.allData;
-            // this.updatePaginatedData(); // Initial pagination
+            // Sort initial data descending
+            this.filteredData = this.allData.slice().sort((a, b) => {
+                if (!a.created_at && !b.created_at) return 0;
+                if (!a.created_at) return 1;
+                if (!b.created_at) return -1;
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
         }
     }
 }
