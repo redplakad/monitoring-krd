@@ -14,16 +14,22 @@ class WhatsappButton extends Component
     public $waLink;
     public $record = [];
     public $kolekText;
+    public $datadate;
     
     public function mount($nomorRekening)
     {
         $this->nomorRekening = $nomorRekening;
+        // Ambil datadate terakhir dari NominatifKredit
+        $this->datadate = NominatifKredit::orderByDesc('DATADATE')->value('DATADATE');
         $this->loadData();
     }
     
     public function loadData()
     {
-        $record = NominatifKredit::where('NOMOR_REKENING', $this->nomorRekening)->first();
+        // Tambahkan filter datadate
+        $record = NominatifKredit::where('NOMOR_REKENING', $this->nomorRekening)
+            ->where('DATADATE', $this->datadate)
+            ->first();
         
         if ($record) {
             $this->record = $record->toArray();
