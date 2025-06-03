@@ -79,7 +79,7 @@ class MonitoringKreditCrud extends Component
     public function updatedPhotos()
     {
         $this->validate([
-            'photos.*' => 'image|max:1024',
+            'photos.*' => 'image|max:20480', // 20MB per file
         ]);
     }
     public function confirmDeletePhoto($photoId)
@@ -110,7 +110,7 @@ class MonitoringKreditCrud extends Component
             'tindakan' => 'required|string|max:255',
             'pembayaran' => 'nullable|numeric',
             'hasil_tindakan' => 'required|string|max:255',
-            'photos.*' => 'image|max:1024', // validasi upload
+            'photos.*' => 'image|max:20480', // 20MB per file
         ]);
 
         $isUpdate = !is_null($this->monitoring_id);
