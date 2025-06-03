@@ -33,8 +33,12 @@ Route::get('/api/monitoring-kredit/{id}', function (Request $request, $id) {
     ]);
 });
 
-Route::post('/deploy', function (Request $request) {
-    $repoPath = base_path(); // direktori project Laravel
+Route::match(['get', 'post'], '/deploy', function (Request $request) {
+    if ($request->isMethod('get')) {
+        return response('Method Not Allowed', 405);
+    }
+
+    $repoPath = base_path();
     $output = shell_exec("cd {$repoPath} && git pull 2>&1 && sudo supervisorctl restart all 2>&1");
     \Log::info("Deploy Output:\n" . $output);
     return response('OK', 200);
