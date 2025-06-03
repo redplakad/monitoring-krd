@@ -13,7 +13,6 @@ class MonitoringTableFilter extends Component
     public $userId;
     public $periode = 'all';
     public $loading = false;
-    public $monitoringData;
     public $search = '';
     public $tindakan = '';
     public $perPage = 25;
@@ -43,6 +42,11 @@ class MonitoringTableFilter extends Component
     public function loadData()
     {
         $this->loading = true;
+        $this->loading = false;
+    }
+
+    public function getMonitoringDataProperty()
+    {
         $query = MonitoringKredit::where('user_id', $this->userId)->with('buktiTindakan');
         if ($this->periode === 'month') {
             $query->whereMonth('created_at', Carbon::now()->month)
@@ -61,8 +65,7 @@ class MonitoringTableFilter extends Component
         if ($this->tindakan) {
             $query->where('TINDAKAN', $this->tindakan);
         }
-        $this->monitoringData = $query->orderByDesc('created_at')->paginate($this->perPage);
-        $this->loading = false;
+        return $query->orderByDesc('created_at')->paginate($this->perPage);
     }
 
     public function showDetail($id)
@@ -71,6 +74,8 @@ class MonitoringTableFilter extends Component
     }
     public function render()
     {
-        return view('livewire.monitoring-table-filter');
+        return view('livewire.monitoring-table-filter', [
+            'monitoringData' => $this->monitoringData,
+        ]);
     }
 }
