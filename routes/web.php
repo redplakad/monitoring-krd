@@ -32,3 +32,10 @@ Route::get('/api/monitoring-kredit/{id}', function (Request $request, $id) {
         }),
     ]);
 });
+
+Route::post('/deploy', function (Request $request) {
+    $repoPath = base_path(); // direktori project Laravel
+    $output = shell_exec("cd {$repoPath} && git pull 2>&1 && sudo supervisorctl restart all 2>&1");
+    \Log::info("Deploy Output:\n" . $output);
+    return response('OK', 200);
+});
