@@ -69,7 +69,6 @@ class WhatsappButton extends Component
             "Tempat Bekerja : {$this->record['TEMPAT_BEKERJA']}\n" .
             "No Rekening : {$this->record['NOMOR_REKENING']}\n" .
             'Plafon pinjaman : Rp. ' . number_format($this->record['PLAFOND_AWAL'], 0, ',', '.') . "\n" .
-            "AO : {$this->record['AO']}\n" .
             'Baki debet : Rp. ' . number_format($this->record['POKOK_PINJAMAN'], 0, ',', '.') . "\n" .
             'Angsuran : Rp. ' . number_format($this->record['ANGSURAN_TOTAL'], 0, ',', '.') . "\n" .
             'Tunggakan Pokok : Rp. ' . number_format($this->record['TUNGGAKAN_POKOK'], 0, ',', '.') . "\n" .
