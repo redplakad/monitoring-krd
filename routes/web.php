@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\MonitoringKredit;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin');
 });
 
 Route::get('/admin/user-profile/{id?}', \App\Filament\Pages\UserProfile::class)
