@@ -81,6 +81,29 @@ class MonitoringKreditCrud extends Component
         $this->validate([
             'photos.*' => 'image|max:20480', // 20MB per file
         ]);
+        // Gabungkan file baru dengan file yang sudah ada (hanya pada tambah, bukan edit)
+        if (!$this->monitoring_id && $this->photos && is_array($this->photos)) {
+            // Ambil file yang sudah ada di $photos sebelum update
+            $old = $this->getPropertyValue('photos') ?? [];
+            $new = $this->photos;
+            // Jika $old bukan array, jadikan array
+            if (!is_array($old)) $old = [];
+            // Jika $new bukan array, jadikan array
+            if (!is_array($new)) $new = [];
+            // Gabungkan file lama dan baru, lalu hapus duplikat (berdasarkan path tmp)
+            $merged = array_merge($old, $new);
+            // Unik berdasarkan path temporary (Livewire upload)
+            $unique = [];
+            $tmpPaths = [];
+            foreach ($merged as $file) {
+                $tmpPath = method_exists($file, 'getRealPath') ? $file->getRealPath() : (string)$file;
+                if (!in_array($tmpPath, $tmpPaths)) {
+                    $unique[] = $file;
+                    $tmpPaths[] = $tmpPath;
+                }
+            }
+            $this->photos = $unique;
+        }
     }
     public function confirmDeletePhoto($photoId)
     {
@@ -183,6 +206,16 @@ class MonitoringKreditCrud extends Component
         $this->confirmingDeleteId = null;
         $this->resetPage();
         $this->deleteSuccessMessage = 'Data penagihan berhasil dihapus.';
+    }
+
+    public function removePhoto($key)
+    {
+        if (isset($this->photos[$key])) {
+            // Hapus file dari array photos (Livewire temporary upload)
+            $photos = $this->photos;
+            unset($photos[$key]);
+            $this->photos = array_values($photos); // reindex agar tidak ada key yang hilang
+        }
     }
 
     public function render()
