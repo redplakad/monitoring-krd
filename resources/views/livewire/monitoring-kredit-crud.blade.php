@@ -200,9 +200,7 @@
                             <div>
                                 <label for="photos" class="block text-xs font-medium text-gray-700">Upload Foto
                                     Bukti (bisa lebih dari satu)</label>
-                                <input type="file" id="photos" wire:model="photos" multiple
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 text-xs"
-                                    accept="image/*" style="display:none;">
+                                <input type="file" id="photos" wire:model="photos" multiple class="filepond" accept="image/*">
                                 <div id="photos-paste-hint" class="text-xs text-gray-400 mt-1">Paste gambar dari clipboard (Ctrl+V) untuk upload otomatis</div>
                                 @error('photos.*')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -354,45 +352,42 @@
 
     </div>
 </div>
-<script>
-    window.addEventListener('show-delete-photo-confirmation', event => {
-        if (confirm('Yakin ingin menghapus foto ini?')) {
-            @this.call('deletePhoto');
-        }
-    });
+@push('styles')
+    <link href="https://unpkg.com/filepond@^4/dist/filepond.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet" />
+@endpush
 
-    // Event handler paste gambar dari clipboard ke input file hidden, lalu upload ke Livewire
-    document.addEventListener('paste', function (event) {
-        // Cek apakah modal tambah/edit penagihan sedang terbuka
-        const form = document.getElementById('monitoring-penagihan-form');
-        if (!form || form.offsetParent === null) return; // form tidak ada atau tidak terlihat
-        console.log('Paste event triggered'); // Debug log
-        if (!event.clipboardData) return;
-        const items = event.clipboardData.items;
-        let foundImage = false;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                if (file) {
-                    const dt = new DataTransfer();
-                    const fileInput = document.getElementById('photos');
-                    if (fileInput && fileInput.files.length > 0) {
-                        for (let j = 0; j < fileInput.files.length; j++) {
-                            dt.items.add(fileInput.files[j]);
+@push('scripts')
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
+    <script>
+        FilePond.registerPlugin(
+            FilePondPluginImagePreview,
+            FilePondPluginFileValidateType,
+            FilePondPluginFileValidateSize
+        );
+        document.addEventListener('livewire:load', function () {
+            Livewire.hook('message.processed', (message, component) => {
+                const input = document.querySelector('input[type=file][id=photos]');
+                if (input && !input._pond) {
+                    const pond = FilePond.create(input, {
+                        allowMultiple: true,
+                        acceptedFileTypes: ['image/*'],
+                        maxFileSize: '20MB',
+                        labelIdle: 'Drag & Drop gambar atau <span class="filepond--label-action">Browse</span>',
+                    });
+                    pond.on('addfile', (error, file) => {
+                        if (!error) {
+                            window.livewire.find(input.closest('[wire\\:id]').getAttribute('wire:id')).upload('photos', pond.getFiles().map(f => f.file), () => {}, () => {}, () => {});
                         }
-                    }
-                    dt.items.add(file);
-                    if (fileInput) {
-                        fileInput.files = dt.files;
-                        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-                        console.log('File assigned to input:', fileInput.files); // Debug log
-                    }
-                    foundImage = true;
+                    });
+                    pond.on('removefile', (error, file) => {
+                        window.livewire.find(input.closest('[wire\\:id]').getAttribute('wire:id')).upload('photos', pond.getFiles().map(f => f.file), () => {}, () => {}, () => {});
+                    });
                 }
-            }
-        }
-        if (foundImage) {
-            event.preventDefault();
-        }
-    });
-</script>
+            });
+        });
+    </script>
+@endpush

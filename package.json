@@ -19,6 +19,10 @@
         "@tailwindcss/forms": "^0.5.10",
         "@tailwindcss/typography": "^0.5.16",
         "chokidar": "^4.0.3",
+        "filepond": "^4.32.7",
+        "filepond-plugin-file-validate-size": "^2.2.8",
+        "filepond-plugin-file-validate-type": "^1.2.9",
+        "filepond-plugin-image-preview": "^4.6.12",
         "npx": "^10.2.2",
         "postcss-nesting": "^13.0.1"
     }
