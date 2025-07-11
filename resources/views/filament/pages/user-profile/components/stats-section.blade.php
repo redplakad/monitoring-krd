@@ -35,7 +35,11 @@
         </div>
         @if(auth()->id() === $user->id)
         <div class="mt-3 px-6">	
-            <x-filament::button color="success" icon="heroicon-o-pencil">
+            <x-filament::button 
+                color="success" 
+                icon="heroicon-o-pencil" 
+                href="{{ route('filament.admin.pages.edit-profile') }}"
+                tag="a">
                 Edit Profile
             </x-filament::button>
         </div>

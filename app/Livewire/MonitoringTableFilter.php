@@ -72,6 +72,12 @@ class MonitoringTableFilter extends Component
     {
         $this->dispatch('show-kredit-detail', id: $id);
     }
+    public function performSearch()
+    {
+        $this->resetPage();
+        $this->loadData();
+    }
+
     public function render()
     {
         return view('livewire.monitoring-table-filter', [

@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('monitoring_koordinat', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('avatar')->nullable()->after('email');
+            $table->string('cover_image')->nullable()->after('avatar');
         });
     }
 
@@ -22,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('monitoring_koordinat');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['avatar', 'cover_image']);
+        });
     }
 };

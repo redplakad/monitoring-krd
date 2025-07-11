@@ -11,7 +11,6 @@ class UserProfile extends Page
     protected static ?string $title = 'Profil Saya';
     protected static string $view = 'filament.pages.user-profile';
     
-
     public $user;
 
     public function mount($id = null)
