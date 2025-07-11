@@ -4,6 +4,16 @@
     <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h3 class="text-lg font-bold text-gray-700 mb-0">Monitoring Kredit</h3>
         <div class="flex items-center gap-2">
+            <input type="text" wire:model.debounce.500ms="search" placeholder="Cari Nama Nasabah..."
+                class="text-xs border-gray-300 rounded px-2 py-1 focus:ring focus:ring-success-200" />
+            <label for="tindakan" class="text-xs font-semibold text-gray-600">Tindakan:</label>
+            <select id="tindakan" wire:model="tindakan" wire:change="loadData"
+                class="text-xs border-gray-300 rounded px-2 py-1 focus:ring focus:ring-success-200">
+                <option value="">Semua</option>
+                @foreach($tindakanList as $t)
+                    <option value="{{ $t }}">{{ $t }}</option>
+                @endforeach
+            </select>
             <label for="periode" class="text-xs font-semibold text-gray-600">Periode:</label>
             <select id="periode" wire:model="periode" wire:change="loadData"
                 class="text-xs border-gray-300 rounded px-2 py-1 focus:ring focus:ring-success-200">
@@ -24,7 +34,7 @@
         </div>
     </div>
     <div class="mb-2 text-xs text-gray-500">
-        Total data: {{ count($monitoringData) }}
+        Total data: {{ $monitoringData->total() }}
     </div>
 
     <!-- Loading Spinner -->
@@ -40,7 +50,7 @@
         <thead>
             <tr class="bg-gray-100">
                 <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Tanggal</th>
-                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">CIF</th>
+                <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Foto</th>
                 <th class="py-2 px-3 font-semibold text-gray-600 text-xs">NoRekening</th>
                 <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Nama Nasabah</th>
                 <th class="py-2 px-3 font-semibold text-gray-600 text-xs">Tindakan</th>
@@ -52,7 +62,17 @@
             @forelse($monitoringData as $kredit)
                 <tr class="border-b">
                     <td class="py-2 px-3 text-xs">{{ \Carbon\Carbon::parse($kredit['created_at'])->format('d/m/Y') }}</td>
-                    <td class="py-2 px-3 text-xs">{{ $kredit['CIF'] ?? '-' }}</td>
+                    <td class="py-2 px-3 text-xs">
+                        <div class="flex -space-x-2">
+                            @php $max = min(4, count($kredit['bukti_tindakan'] ?? [])); @endphp
+                            @for($i = 0; $i < $max; $i++)
+                                <img src="{{ asset('storage/' . $kredit['bukti_tindakan'][$i]['photo']) }}" class="w-6 h-6 rounded-full border-2 border-white shadow object-cover" style="z-index:{{ 10-$i }};" />
+                            @endfor
+                            @if(count($kredit['bukti_tindakan'] ?? []) > 4)
+                                <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold border-2 border-white" style="z-index:6;">+{{ count($kredit['bukti_tindakan'] ?? [])-4 }}</span>
+                            @endif
+                        </div>
+                    </td>
                     <td class="py-2 px-3 text-xs">{{ $kredit['NOMOR_REKENING'] ?? '-' }}</td>
                     <td class="py-2 px-3 text-xs">{{ $kredit['NAMA_NASABAH'] ?? '-' }}</td>
                     <td class="py-2 px-3 text-xs">{{ $kredit['TINDAKAN'] ?? '-' }}</td>
@@ -73,5 +93,8 @@
             @endforelse
         </tbody>
     </table>
+    <div class="mt-4">
+        {{ $monitoringData->links() }}
+    </div>
 </div>
 </div>

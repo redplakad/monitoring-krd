@@ -47,7 +47,7 @@
                     </td>
                 </tr>
             </template>
-            <template x-for="kredit in filteredData" :key="kredit.id">
+            <template x-for="kredit in paginatedData" :key="kredit.id">
                 <tr class="border-b">
                     <td class="py-2 px-3 text-xs" x-text="kredit.created_at ? new Date(kredit.created_at).toLocaleDateString('id-ID') : '-' "></td>
                     <td class="py-2 px-3 text-xs" x-text="kredit.CIF || '-' "></td>
@@ -71,6 +71,21 @@
             </template>
         </tbody>
     </table>
+
+    <!-- Pagination Controls -->
+    <div x-show="!loading && totalPages > 1" class="mt-4 flex items-center justify-between text-xs">
+        <button @click="prevPage()" :disabled="currentPage === 1"
+            class="px-3 py-1 border rounded-md text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Sebelumnya
+        </button>
+        <span class="text-gray-600">
+            Halaman <span x-text="currentPage"></span> dari <span x-text="totalPages"></span>
+        </span>
+        <button @click="nextPage()" :disabled="currentPage === totalPages"
+            class="px-3 py-1 border rounded-md text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Berikutnya
+        </button>
+    </div>
 
     <!-- Detail Modal -->
     <div x-show="showDetailModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;"
@@ -253,48 +268,94 @@ function monitoringTable() {
         selectedImage: null,
         periode: 'all',
         loading: false,
-        allData: @json($user->monitoringKredit->map(function($item) {
-            return [
-                'id' => $item->id,
-                'created_at' => $item->created_at,
-                'CIF' => $item->CIF,
-                'NOMOR_REKENING' => $item->NOMOR_REKENING,
-                'NAMA_NASABAH' => $item->NAMA_NASABAH,
-                'TINDAKAN' => $item->TINDAKAN,
-                'HASIL_TINDAKAN' => $item->HASIL_TINDAKAN,
-                'PEMBAYARAN' => $item->PEMBAYARAN,
-                'bukti_tindakan' => $item->buktiTindakan,
-                ]
-            };
-        })->values()->all()),
+        currentPage: 1,
+        itemsPerPage: 25,
+        allData: (() => {
+            // Sort descending by created_at
+            let data = @json($user->monitoringKredit->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'created_at' => $item->created_at,
+                    'CIF' => $item->CIF,
+                    'NOMOR_REKENING' => $item->NOMOR_REKENING,
+                    'NAMA_NASABAH' => $item->NAMA_NASABAH,
+                    'TINDAKAN' => $item->TINDAKAN,
+                    'HASIL_TINDAKAN' => $item->HASIL_TINDAKAN,
+                    'PEMBAYARAN' => $item->PEMBAYARAN,
+                    'bukti_tindakan' => $item->buktiTindakan,
+                ];
+            })->values()->all());
+            return data.sort((a, b) => {
+                // Null/undefined created_at should be last
+                if (!a.created_at && !b.created_at) return 0;
+                if (!a.created_at) return 1;
+                if (!b.created_at) return -1;
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
+        })(),
         filteredData: [],
         filterData() {
             this.loading = true;
+            this.currentPage = 1; // Reset to first page on filter change
             setTimeout(() => {
                 const now = new Date();
                 const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                 const week = (date) => Math.ceil((date.getDate() - date.getDay() + 1) / 7);
+                let filtered;
                 if (this.periode === 'all') {
-                    this.filteredData = this.allData;
+                    filtered = this.allData;
                 } else if (this.periode === 'month') {
-                    this.filteredData = this.allData.filter(item => {
+                    filtered = this.allData.filter(item => {
                         if (!item.created_at) return false;
                         const dt = new Date(item.created_at);
                         return dt >= startOfMonth && dt <= now;
                     });
                 } else if (this.periode.startsWith('week')) {
                     const weekNum = parseInt(this.periode.replace('week', ''));
-                    this.filteredData = this.allData.filter(item => {
+                    filtered = this.allData.filter(item => {
                         if (!item.created_at) return false;
                         const dt = new Date(item.created_at);
                         return dt >= startOfMonth && dt <= now && week(dt) === weekNum;
                     });
                 }
+                // Sort filtered data descending by created_at
+                this.filteredData = filtered.slice().sort((a, b) => {
+                    if (!a.created_at && !b.created_at) return 0;
+                    if (!a.created_at) return 1;
+                    if (!b.created_at) return -1;
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
                 this.loading = false;
             }, 400); // Simulasi loading
         },
+        get paginatedData() {
+            if (!this.filteredData) return [];
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filteredData.slice(start, end);
+        },
+        get totalPages() {
+            if (!this.filteredData) return 0;
+            return Math.ceil(this.filteredData.length / this.itemsPerPage);
+        },
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
+        },
         init() {
-            this.filteredData = this.allData;
+            // Sort initial data descending
+            this.filteredData = this.allData.slice().sort((a, b) => {
+                if (!a.created_at && !b.created_at) return 0;
+                if (!a.created_at) return 1;
+                if (!b.created_at) return -1;
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
         }
     }
 }

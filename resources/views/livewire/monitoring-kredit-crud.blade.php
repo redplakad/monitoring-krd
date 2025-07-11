@@ -155,14 +155,13 @@
             <div class="fixed inset-0 z-50" style="background-color: rgba(0,0,0,0.5);">
                 <!-- Overlay background -->
                 <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-
                 <!-- Modal content -->
                 <div class="fixed inset-0 flex items-center justify-center p-4">
                     <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg text-xs z-10">
                         <h3 class="text-xs font-semibold mb-4">
                             {{ $monitoring_id ? 'Edit Penagihan' : 'Tambah Penagihan Baru' }}
                         </h3>
-                        <form wire:submit.prevent="save" class="space-y-4">
+                        <form wire:submit.prevent="save" class="space-y-4" id="monitoring-penagihan-form">
                             <div>
                                 <label for="tindakan" class="block text-xs font-medium text-gray-700">Tindakan</label>
                                 <select id="tindakan" wire:model.defer="tindakan" required
@@ -198,29 +197,11 @@
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
-                            @if ($oldPhotos && count($oldPhotos))
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 overflow-y-auto"
-                                    style="max-height: 300px;">
-                                    @foreach ($oldPhotos as $oldPhoto)
-                                        <div class="relative group">
-                                            <img src="{{ asset('storage/' . $oldPhoto->photo) }}"
-                                                class="rounded border object-cover w-full aspect-square" />
-                                            <button type="button"
-                                                class="absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 text-red-600 hover:bg-red-600 hover:text-white transition group-hover:scale-110"
-                                                style="background-color: rgba(0, 0, 0, 0.8);color:#fff;"
-                                                wire:click.prevent="confirmDeletePhoto({{ $oldPhoto->id }})">
-                                                &times;
-                                            </button>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
                             <div>
                                 <label for="photos" class="block text-xs font-medium text-gray-700">Upload Foto
                                     Bukti (bisa lebih dari satu)</label>
-                                <input type="file" id="photos" wire:model="photos" multiple
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 text-xs"
-                                    accept="image/*">
+                                <input type="file" id="photos" wire:model="photos" multiple class="filepond" accept="image/*">
+                                <div id="photos-paste-hint" class="text-xs text-gray-400 mt-1">Paste gambar dari clipboard (Ctrl+V) untuk upload otomatis</div>
                                 @error('photos.*')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
@@ -236,14 +217,37 @@
                                     <span class="text-xs text-gray-600">Memproses foto, mohon tunggu...</span>
                                 </div>
 
-                                {{-- Preview foto baru yang diupload --}}
-                                @if ($photos)
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 overflow-y-auto"
-                                        style="max-height: 300px;">
-                                        @foreach ($photos as $photo)
-                                            <img src="{{ $photo->temporaryUrl() }}"
-                                                class="rounded border object-cover w-full aspect-square" />
-                                        @endforeach
+                                {{-- Gabungkan preview foto lama dan baru dalam satu grid --}}
+                                @if (($oldPhotos && count($oldPhotos)) || $photos)
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 overflow-y-auto" style="max-height: 300px;">
+                                        @if ($oldPhotos && count($oldPhotos))
+                                            @foreach ($oldPhotos as $oldPhoto)
+                                                <div class="relative group">
+                                                    <img src="{{ asset('storage/' . $oldPhoto->photo) }}"
+                                                        class="rounded border object-cover w-full aspect-square" />
+                                                    <button type="button"
+                                                        class="absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 text-red-600 hover:bg-red-600 hover:text-white transition group-hover:scale-110"
+                                                        style="background-color: rgba(0, 0, 0, 0.8);color:#fff;"
+                                                        wire:click.prevent="confirmDeletePhoto({{ $oldPhoto->id }})">
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                        @if ($photos)
+                                            @foreach ($photos as $key => $photo)
+                                                <div class="relative group">
+                                                    <img src="{{ $photo->temporaryUrl() }}"
+                                                        class="rounded border object-cover w-full aspect-square" />
+                                                    <button type="button"
+                                                        class="absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 text-red-600 hover:bg-red-600 hover:text-white transition group-hover:scale-110"
+                                                        style="background-color: rgba(0, 0, 0, 0.8);color:#fff;"
+                                                        wire:click.prevent="removePhoto({{ $key }})">
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        @endif
                                     </div>
                                 @endif
                             </div>
@@ -348,10 +352,42 @@
 
     </div>
 </div>
-<script>
-    window.addEventListener('show-delete-photo-confirmation', event => {
-        if (confirm('Yakin ingin menghapus foto ini?')) {
-            @this.call('deletePhoto');
-        }
-    });
-</script>
+@push('styles')
+    <link href="https://unpkg.com/filepond@^4/dist/filepond.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet" />
+@endpush
+
+@push('scripts')
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
+    <script>
+        FilePond.registerPlugin(
+            FilePondPluginImagePreview,
+            FilePondPluginFileValidateType,
+            FilePondPluginFileValidateSize
+        );
+        document.addEventListener('livewire:load', function () {
+            Livewire.hook('message.processed', (message, component) => {
+                const input = document.querySelector('input[type=file][id=photos]');
+                if (input && !input._pond) {
+                    const pond = FilePond.create(input, {
+                        allowMultiple: true,
+                        acceptedFileTypes: ['image/*'],
+                        maxFileSize: '20MB',
+                        labelIdle: 'Drag & Drop gambar atau <span class="filepond--label-action">Browse</span>',
+                    });
+                    pond.on('addfile', (error, file) => {
+                        if (!error) {
+                            window.livewire.find(input.closest('[wire\\:id]').getAttribute('wire:id')).upload('photos', pond.getFiles().map(f => f.file), () => {}, () => {}, () => {});
+                        }
+                    });
+                    pond.on('removefile', (error, file) => {
+                        window.livewire.find(input.closest('[wire\\:id]').getAttribute('wire:id')).upload('photos', pond.getFiles().map(f => f.file), () => {}, () => {}, () => {});
+                    });
+                }
+            });
+        });
+    </script>
+@endpush

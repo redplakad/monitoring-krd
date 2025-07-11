@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\MonitoringKredit;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin');
 });
 
 Route::get('/admin/user-profile/{id?}', \App\Filament\Pages\UserProfile::class)
@@ -31,4 +31,15 @@ Route::get('/api/monitoring-kredit/{id}', function (Request $request, $id) {
             ];
         }),
     ]);
+});
+
+Route::match(['get', 'post'], '/deploy', function (Request $request) {
+    if ($request->isMethod('get')) {
+        return response('Method Not Allowed', 405);
+    }
+
+    $repoPath = base_path();
+    $output = shell_exec("cd {$repoPath} && git pull 2>&1 && sudo supervisorctl restart all 2>&1");
+    \Log::info("Deploy Output:\n" . $output);
+    return response('OK', 200);
 });
